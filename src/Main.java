@@ -13,7 +13,7 @@ public class Main {
     static String convertToAudioAndGetPath(String inputFilePath) {
         String tmpDir = System.getProperty("java.io.tmpdir");
         String outFilePath = tmpDir + "/audio.wav";
-        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -sample_rate 16000 -y " + outFilePath;
+        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -ac 1 -sample_rate 16000 -y " + outFilePath;
         System.out.println(ffmpegCommand);
         try {
             Runtime.getRuntime().exec(ffmpegCommand);
