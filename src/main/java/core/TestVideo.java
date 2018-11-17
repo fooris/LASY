@@ -31,7 +31,7 @@ public class TestVideo {
         sl.detectNotSilence();
         sl.report();
         try {
-            FFMPEG.cut(args[0], "/tmp/out.mp4",sl.getCutSequence());
+            FFMPEG.cut(args[0], "/tmp/out.mp4",sl.getCutSequence(),true,0);
         } catch (IOException e) {
             e.printStackTrace();
         }
