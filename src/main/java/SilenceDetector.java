@@ -1,26 +1,23 @@
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SilenceDetector {
 
     private double thresholdMult;
-    private double minSampleLength;
-    private double[] rawSound;
+    private double minCutLength;
+    private double[] samples;
+    private List<Interval> intervals;
 
-    public SilenceDetector(String fileName, double thresholdMult, double minSampleLength) {
-        try {
-            this.rawSound = SoundLoader.read(fileName);
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
+    public SilenceDetector(double[] samples, double thresholdMult, double minCutLength) {
+        this.samples = samples;
         this.thresholdMult = thresholdMult;
-        this.minSampleLength = minSampleLength;
+        this.minCutLength = minCutLength;
+        intervals = new ArrayList<>();
     }
 
-    public List<Interval> detectSilence() {
-        double[] reducedSound = SoundLoader.reduce(this.rawSound, SoundLoader.REDUCTION_FACTOR);
-        int kSize = (int) (1.5 * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR));
+    public void detectSilence() {
+        double[] reducedSound = AudioIO.reduce(this.samples, AudioIO.REDUCTION_FACTOR);
+        int kSize = (int) (1.5 * (AudioIO.SAMPLE_RATE / AudioIO.REDUCTION_FACTOR));
         Filter filter = new GaussFilter(kSize / 6, kSize);
         double[] filteredSound = filter.filter(reducedSound);
 
@@ -29,7 +26,7 @@ public class SilenceDetector {
 
         boolean currentlySilent;
         int startSample = -1;
-        List<Interval> fupelList = new ArrayList<>();
+        List<Interval> intervals = new ArrayList<>();
         for (int i = 1; i < filteredSound.length; i++) {
             currentlySilent = Math.abs(filteredSound[i]) < thresholdMult * max;
             // silence star
@@ -38,50 +35,51 @@ public class SilenceDetector {
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                if (i - startSample > minSampleLength * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR))
-                    fupelList.add(new Interval(startSample, i - 1));
+                if (i - startSample > minCutLength * (AudioIO.SAMPLE_RATE / AudioIO.REDUCTION_FACTOR))
+                    intervals.add(new Interval(startSample, i - 1));
                 startSample = -1;
             }
         }
 
-        return fupelList;
+        this.intervals = intervals;
     }
 
-    public List<Interval> detectNotSilence() throws UnsupportedAudioFileException {
-        List<Interval> silenceFupelList = detectSilence();
+    public void detectNotSilence() {
+        detectSilence();
+        List<Interval> oldIntervals = this.intervals;
 
         // we disregard first and last silence
-        List<Interval> fupelList = new ArrayList<>();
-        for (int i = 1; i < silenceFupelList.size(); i++) {
-            fupelList.add(new Interval(silenceFupelList.get(i - 1).getTimeEnd(),
-                    silenceFupelList.get(i).getTimeStart()));
+        List<Interval> intervals = new ArrayList<>();
+        for (int i = 1; i < oldIntervals.size(); i++) {
+            intervals.add(new Interval(oldIntervals.get(i - 1).getTimeEnd(),
+                    oldIntervals.get(i).getTimeStart()));
         }
 
-        return fupelList;
+        this.intervals = intervals;
     }
 
-    public double[] getRawSound() {
-        return this.rawSound;
-    }
-
-    public void report(List<Interval> fupelList) {
-        double secondsSaved = fupelList.stream()
+    public void report() {
+        double secondsSaved = intervals.stream()
                 .map(i -> i.getTimeEnd() - i.getTimeStart())
                 .reduce(Double::sum)
                 .orElse(0.0);
 
-        double maxSecondsSaved = fupelList.stream()
+        double maxSecondsSaved = intervals.stream()
                 .map(i -> i.getTimeEnd() - i.getTimeStart())
                 .reduce(Double::max)
                 .orElse(0.0);
 
-        double avgSecondsSaved = secondsSaved / fupelList.size();
+        double avgSecondsSaved = secondsSaved / intervals.size();
 
-        System.out.println("Number of cuts: " + fupelList.size());
+        System.out.println("Number of cuts: " + intervals.size());
         System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsSaved);
         System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
         System.out.printf("Seconds saved: %.2f\n", secondsSaved);
-        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (rawSound.length / SoundLoader.SAMPLE_RATE));
+        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (this.samples.length / AudioIO.SAMPLE_RATE));
 
+    }
+
+    public List<Interval> getCutSequence() {
+        return intervals;
     }
 }
