@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AudioTools {
 
@@ -29,12 +30,12 @@ public class AudioTools {
         return outPaths;
     }
 
-    public static double[] cut(List<Interval> intervals, double[] samples) {
+    public static double[] cut(List<Interval> cutSequence, double[] samples) {
         // invert to get intervals that are supposed to be kept
-        intervals = AudioTools.inverse(intervals, samples.length);
+        List<Interval> keepSequence = AudioTools.inverse(cutSequence, samples.length);
 
         // calc length of cut audio
-        int newLength = intervals.stream()
+        int newLength = keepSequence.stream()
                 .map(i -> i.getSampleEnd() - i.getSampleStart() + 1)
                 .reduce(Integer::sum)
                 .orElse(0);
@@ -43,7 +44,7 @@ public class AudioTools {
         int newIndex = 0;
 
         // copy intervals
-        for (Interval i : intervals) {
+        for (Interval i : keepSequence) {
             for (int n = i.getSampleStart(); n <= i.getSampleEnd(); n++) {
                 newSamples[newIndex++] = samples[n];
             }
@@ -52,7 +53,7 @@ public class AudioTools {
         return newSamples;
     }
 
-    public static double[] smoothCuts(List<Interval> cutIntervals, double[] samples, double smoothingInterval) {
+    public static double[] smoothCuts(List<Interval> cutSequence, double[] samples, double smoothingInterval) {
         // copy samples
         double[] smoothSamples = Arrays.copyOf(samples, samples.length);
 
@@ -67,7 +68,7 @@ public class AudioTools {
 
         // compute cut points
         List<Integer> cutPoints = new LinkedList<>();
-        for (Interval i : cutIntervals) {
+        for (Interval i : cutSequence) {
             cutPoints.add(i.getSampleStart());
             cutPoints.add(i.getSampleEnd());
         }
@@ -110,4 +111,14 @@ public class AudioTools {
         return inverseIntervals;
     }
 
+    public static List<Interval> pad(List<Interval> cutSequence, double paddingInterval) {
+        int paddingIntervalSamples = (int) (paddingInterval * AudioIO.SAMPLE_RATE);
+
+        return cutSequence.stream()
+                .map(i -> new Interval(
+                        i.getSampleStart() + paddingIntervalSamples,
+                        i.getSampleEnd() - paddingIntervalSamples)
+                ).filter(i -> i.getSampleEnd() - i.getSampleStart() > 0)
+                .collect(Collectors.toList());
+    }
 }

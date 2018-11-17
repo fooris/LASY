@@ -1,6 +1,7 @@
 package core;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.util.List;
 
 public class TestAudio {
 
@@ -9,10 +10,14 @@ public class TestAudio {
 
         double[] samples = AudioIO.load("./temp/audio.wav");
 
-        SilenceDetector sl = new SilenceDetector(samples, 0.1, 0.5);
+        double minCutLength = 0.5;
+
+        SilenceDetector sl = new SilenceDetector(samples, 0.1, minCutLength);
         sl.detectSilence();
         sl.report();
 
+        List<Interval> cutSequence = sl.getCutSequence();
+        cutSequence = AudioTools.pad(cutSequence, 0.1);
         double[] smoothedSamples = AudioTools.smoothCuts(sl.getCutSequence(), samples, 0.1);
         double[] newSamples = AudioTools.cut(sl.getCutSequence(), smoothedSamples);
 
