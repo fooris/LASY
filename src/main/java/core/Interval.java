@@ -5,18 +5,16 @@ public class Interval {
     private double timeStart;
     private double timeEnd;
 
+    private int sampleStart;
+    private int sampleEnd;
 
-
-    public Interval(int samplePosStart, int samplePosEnd) {
+    public Interval(int sampleStart, int sampleEnd) {
         //Convert to frame num and save in framePos
-        this.timeStart = samplePosStart * AudioIO.REDUCTION_FACTOR / (double) AudioIO.SAMPLE_RATE;
-        this.timeEnd = samplePosEnd * AudioIO.REDUCTION_FACTOR / (double) AudioIO.SAMPLE_RATE;
-    }
+        this.sampleStart = sampleStart;
+        this.sampleEnd = sampleEnd;
 
-    public Interval(double timeStart, double timeEnd) {
-        //Convert to frame num and save in framePos
-        this.timeStart = timeStart;
-        this.timeEnd = timeEnd;
+        this.timeStart = sampleStart / (double) AudioIO.SAMPLE_RATE;
+        this.timeEnd = sampleEnd / (double) AudioIO.SAMPLE_RATE;
     }
 
     public double getTimeStart() {
@@ -25,6 +23,14 @@ public class Interval {
 
     public double getTimeEnd() {
         return timeEnd;
+    }
+
+    public int getSampleStart() {
+        return sampleStart;
+    }
+
+    public int getSampleEnd() {
+        return sampleEnd;
     }
 
     @Override

@@ -1,13 +1,7 @@
 package core;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
-import static java.lang.Thread.sleep;
 
 public class FFMPEG {
     private static final String FFMPEG_PATH = "/usr/bin/ffmpeg";
@@ -26,37 +20,37 @@ public class FFMPEG {
         return outFilePath;
     }
 
-    //TODO: fix scanner
-    public static List<Interval> getSilence(String inputFilePath, double db, double minLegth) {
-        String super1337awkCommand = "awk '$4 == \"silence_end:\" { print $5 \" \" $8 }'";
-        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -af silencedetect=n=" + db + "dB:d=" + minLegth + " -f null -";
-
-        String cmd = ffmpegCommand + " 2>&1 >/dev/null | " + super1337awkCommand;
-        System.out.println(ffmpegCommand);
-        List<Interval> il = new ArrayList<>();
-        try {
-            Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream());
-            System.out.println(s.next());
-            if (s.hasNext())
-                do {
-                    for (int i = 0; i < 2; i++) {
-                        Interval ival;
-                        double start;
-                        double end;
-                        end = s.nextDouble();
-                        start = end - s.nextDouble();
-                        ival = new Interval(start, end);
-                        il.add(ival);
-                    }
-                } while (s.hasNext());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return il;
-    }
+//    //TODO: fix scanner
+//    public static List<Interval> getSilence(String inputFilePath, double db, double minLegth) {
+//        String super1337awkCommand = "awk '$4 == \"silence_end:\" { print $5 \" \" $8 }'";
+//        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -af silencedetect=n=" + db + "dB:d=" + minLegth + " -f null -";
+//
+//        String cmd = ffmpegCommand + " 2>&1 >/dev/null | " + super1337awkCommand;
+//        System.out.println(ffmpegCommand);
+//        List<Interval> il = new ArrayList<>();
+//        try {
+//            Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream());
+//            System.out.println(s.next());
+//            if (s.hasNext())
+//                do {
+//                    for (int i = 0; i < 2; i++) {
+//                        Interval ival;
+//                        double start;
+//                        double end;
+//                        end = s.nextDouble();
+//                        start = end - s.nextDouble();
+//                        ival = new Interval(start, end);
+//                        il.add(ival);
+//                    }
+//                } while (s.hasNext());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return il;
+//    }
 
     public static void cut(String inputFilePath, String outputFilePath, List<Interval> il, boolean reencodeVideo, float speedFactor) throws IOException {
-        int segnum  = 0;
+        int segnum = 0;
         double timePos = 0;
 
         String tmpFilePrefix = "segment";
@@ -67,13 +61,13 @@ public class FFMPEG {
 
         BufferedWriter fileWrite = new BufferedWriter(new FileWriter("/tmp/segments.txt"));
         System.out.println();
-        for (Interval i: il) {
+        for (Interval i : il) {
             float start = (float) i.getTimeStart();
             float end = (float) i.getTimeEnd();
             String tmpOutFilePath = tmpDir + "/" + tmpFilePrefix + String.format("%05d", segnum) + extention;
-            segnum ++;
+            segnum++;
             ffmpegCmd += " -c copy -ss " + start + " -to " + end + " " + tmpOutFilePath;
-            fileWrite.write("file "+tmpOutFilePath + "\n");
+            fileWrite.write("file " + tmpOutFilePath + "\n");
         }
         fileWrite.close();
         System.out.println(ffmpegCmd);
@@ -101,8 +95,8 @@ public class FFMPEG {
         System.out.println("done");
         ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt ";
         ffmpegCmd += (reencodeVideo ? "" : "-c:v copy") + " -c:a copy ";
-        ffmpegCmd +=  (speedFactor == 0) ? "" : "-filter_complex \"[0:v]setpts="+ 1/speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a]\" -map \"[v]\" -map \"[a]\" ";
-        ffmpegCmd +=  outputFilePath;
+        ffmpegCmd += (speedFactor == 0) ? "" : "-filter_complex \"[0:v]setpts=" + 1 / speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a]\" -map \"[v]\" -map \"[a]\" ";
+        ffmpegCmd += outputFilePath;
         System.out.println(ffmpegCmd);
         p = Runtime.getRuntime().exec(ffmpegCmd);
 
@@ -124,6 +118,6 @@ public class FFMPEG {
             e.printStackTrace();
         }
         //for (int i = 0; i<segnum; i++)
-            //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+        //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
     }
 }

@@ -6,7 +6,7 @@ public class GaussFilter implements Filter{
     private double[] kernel;
 
     GaussFilter(double sigma , int kernelSize){
-        if((kernelSize & 1) == 1 ) throw new IllegalArgumentException("Kernel Size must be uneven!");
+        if((kernelSize & 1) == 0 ) throw new IllegalArgumentException("Kernel Size must be uneven!");
         this.sigma = sigma;
         kernel = new double[kernelSize/2+1];
         double normalizer = 0;
