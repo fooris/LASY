@@ -77,7 +77,7 @@ public class FFMPEG {
         }
 
         System.out.println("done");
-        ffmpegCmd = FFMPEG_PATH + " -nostdin -y -f concat -safe 0 -i /tmp/segments.txt ";
+        ffmpegCmd = FFMPEG_PATH + " -nostdin -y -f concat -safe 0 -i /tmp/segments.txt -max_muxing_queue_size 400 ";
 
         boolean accelerate = !(speedFactor == 0 || speedFactor == 1);
 
