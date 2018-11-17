@@ -1,6 +1,5 @@
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -72,6 +71,47 @@ public class SoundLoader {
         }
 
         return data;
+    }
+
+    /**
+     * Saves the double array as an audio file (using .wav or .au format).
+     *
+     * @param  filename the name of the audio file
+     * @param  samples the array of samples
+     * @throws IllegalArgumentException if unable to save {@code filename}
+     * @throws IllegalArgumentException if {@code samples} is {@code null}
+     */
+    public static void save(String filename, double[] samples) {
+        if (samples == null) {
+            throw new IllegalArgumentException("samples[] is null");
+        }
+
+        // use 16000hz 16-bit audio, mono, signed PCM, little Endian
+        AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
+        byte[] data = new byte[2 * samples.length];
+        for (int i = 0; i < samples.length; i++) {
+            int temp = (short) (samples[i] * MAX_16_BIT);
+            data[2*i + 0] = (byte) temp;
+            data[2*i + 1] = (byte) (temp >> 8);
+        }
+
+        // now save the file
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(data);
+            AudioInputStream ais = new AudioInputStream(bais, format, samples.length);
+            if (filename.endsWith(".wav") || filename.endsWith(".WAV")) {
+                AudioSystem.write(ais, AudioFileFormat.Type.WAVE, new File(filename));
+            }
+            else if (filename.endsWith(".au") || filename.endsWith(".AU")) {
+                AudioSystem.write(ais, AudioFileFormat.Type.AU, new File(filename));
+            }
+            else {
+                throw new IllegalArgumentException("unsupported audio format: '" + filename + "'");
+            }
+        }
+        catch (IOException ioe) {
+            throw new IllegalArgumentException("unable to save file '" + filename + "'", ioe);
+        }
     }
 
 

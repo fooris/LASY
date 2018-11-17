@@ -53,11 +53,15 @@ public class SilenceDetector {
         // we disregard first and last silence
         List<Interval> fupelList = new ArrayList<>();
         for (int i = 1; i < silenceFupelList.size(); i++) {
-            fupelList.add(new Interval(silenceFupelList.get(i-1).getTimeEnd(),
+            fupelList.add(new Interval(silenceFupelList.get(i - 1).getTimeEnd(),
                     silenceFupelList.get(i).getTimeStart()));
         }
 
         return fupelList;
+    }
+
+    public double[] getRawSound() {
+        return this.rawSound;
     }
 
     public void report(List<Interval> fupelList) {
