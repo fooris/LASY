@@ -2,7 +2,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class IntervalHandler implements Iterable {
+public class IntervalHandler {
 
     public static final int SAMPLE_RATE = 16000;
 
@@ -12,9 +12,8 @@ public class IntervalHandler implements Iterable {
         intervals.add(new Interval(samplePosStart, samplePosEnd));
     }
 
-    @Override
-    public Iterator iterator() {
-        return intervals.iterator();
+    public List<Interval> getIntervals(){
+        return intervals;
     }
 
     public class Interval {
@@ -37,6 +36,21 @@ public class IntervalHandler implements Iterable {
 
         public int getFramePosEnd(int frameRate) {
             return samplePosEnd * frameRate / SAMPLE_RATE;
+        }
+
+        public int getSamplePosStart() {
+            return samplePosStart;
+        }
+
+        public int getSamplePosEnd() {
+            return samplePosEnd;
+        }
+
+
+
+        @Override
+        public String toString() {
+            return "(" + samplePosStart + "," + samplePosEnd + ')';
         }
     }
 
