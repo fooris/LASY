@@ -52,7 +52,7 @@ public class LectureMaker {
         this.invert = invert;
     }
 
-    LectureMaker(String videoPath) {
+    public LectureMaker(String videoPath) {
         this.videoPath = videoPath;
         outputPath = videoPath + ".conv.mp4";
         reencodeVideo = true;

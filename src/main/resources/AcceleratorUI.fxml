@@ -44,13 +44,13 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="598.0">
                      <children>
                         <Slider fx:id="sldRelativeSilenceThreshold" layoutX="14.0" layoutY="31.0" max="30.0" minorTickCount="25" prefHeight="38.0" prefWidth="432.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="10.0" />
-                        <Slider fx:id="sldMaxGapLength" blockIncrement="0.5" layoutX="16.0" layoutY="85.0" majorTickUnit="1.0" max="2.0" min="0.1" prefHeight="38.0" prefWidth="426.0" showTickLabels="true" showTickMarks="true" value="0.5" />
+                        <Slider fx:id="sldMinGapLength" blockIncrement="0.5" layoutX="16.0" layoutY="85.0" majorTickUnit="1.0" max="2.0" min="0.1" prefHeight="38.0" prefWidth="426.0" showTickLabels="true" showTickMarks="true" value="0.5" />
                         <Label layoutX="14.0" layoutY="14.0" text="Silence Sensitivity:" />
                         <Label layoutX="16.0" layoutY="69.0" text="Minimum Gap Length:" />
                         <Label layoutX="14.0" layoutY="123.0" text="Acceleration Factor" />
                         <Slider fx:id="sldAccelerationRate" layoutX="19.0" layoutY="146.0" majorTickUnit="0.5" max="2.0" min="0.5" minorTickCount="10" prefHeight="38.0" prefWidth="419.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
                         <CheckBox fx:id="chkReencode" layoutX="482.0" layoutY="60.0" mnemonicParsing="false" selected="true" text="Reencode" />
-                        <CheckBox layoutX="483.0" layoutY="114.0" mnemonicParsing="false" text="Fun Mode" />
+                        <CheckBox fx:id="chkFunMode" layoutX="483.0" layoutY="114.0" mnemonicParsing="false" text="Fun Mode" />
                      </children></AnchorPane>
               </content>
             </TitledPane>

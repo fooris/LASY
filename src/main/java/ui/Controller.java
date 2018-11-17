@@ -29,6 +29,16 @@ public class Controller {
         public void updateProgress(double progress) {
             progressBar.setProgress(progress);
         }
+
+        @Override
+        public void updateState(String state) {
+            lblState.setText(state);
+        }
+
+        @Override
+        public void done() {
+
+        }
     };
 
     //Silence detector
@@ -52,7 +62,7 @@ public class Controller {
     @FXML
     private Slider sldRelativeSilenceThreshold;
     @FXML
-    private Slider sldMaxGapLength;
+    private Slider sldMinGapLength;
     @FXML
     private Slider sldAccelerationRate;
     @FXML
@@ -83,7 +93,16 @@ public class Controller {
 
     @FXML
     private void playerPreview(ActionEvent event) {
-        Media media = new Media("file:///home/administrator/SideProjects/test2.mp4");
+        copyConfigValues();
+
+        Media media = null;
+        try {
+            media = new Media("file://" + lm.genPreview());
+        } catch (IOException e) {
+            //TODO Pop-Up or sth. similar to inform the user
+            e.printStackTrace();
+        }
+        updateStats();
         MediaPlayer player = new MediaPlayer( media );
 
         videoView.setMediaPlayer(player);
@@ -91,6 +110,7 @@ public class Controller {
 
     @FXML
     private void playerPlay(ActionEvent event) {
+        //TODO: improve this!
         MediaPlayer mp = videoView.getMediaPlayer();
         if (mp==null) {return;}
         if (isPlaying) {
@@ -101,16 +121,35 @@ public class Controller {
         isPlaying = !isPlaying;
     }
 
+    private void copyConfigValues() {
+        if (lm == null) {
+            //TODO -> User has not jet chosen a file -> Popup!
+            return;
+        }
+        lm.setInvert(chkFunMode.isSelected());
+        lm.setMinCutLength(sldMinGapLength.getValue());
+        lm.setThreshold(sldRelativeSilenceThreshold.getValue());
+        lm.setSpeedUpFactor((float) sldAccelerationRate.getValue());
+        lm.setReencodeVideo(chkReencode.isSelected());
+    }
+
+    //TODO: call this more often when sliders are changed
+    private void updateStats() {
+        //TODO format this
+        lblOriginalLength.setText(lm. getVideoLength() + "s");
+        lblAcceleratedLength.setText(lm. getFinalVideoLength() + "s");
+    }
 
     @FXML
     private void handleVideoOpen(ActionEvent event) { //TODO error popups
-        try {
+//        try {
             //Open file
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Open File");
             File file = chooser.showOpenDialog(new Stage());
             if (file==null) {return;}
             lm = new LectureMaker(file.getAbsolutePath());
+            updateStats();
 
             System.out.println(file);
 
@@ -152,6 +191,17 @@ public class Controller {
 
     @FXML
     private void handleGenerate(ActionEvent event) {
+        try {
+            lm.genFinal();
+        } catch (IOException e) {
+            //TODO Pop-Up or sth. similar to inform the user
+            e.printStackTrace();
+        }
+
+        //TODO: User feedback
+
+        //TODO Was macht hier der Rest?
+        /*
         System.out.println("Generate");
         if (silenceDetector==null) {
             return; //TODO Error message
@@ -177,12 +227,13 @@ public class Controller {
         //} catch (IOException e) {
         //    e.printStackTrace();
         //}
+        */
 
     }
 
     //Helper
-    private static String secondsToString(int seconds) {
-        LocalTime timeOfDay = LocalTime.ofSecondOfDay(seconds);
+    private static String secondsToString(float seconds) {
+        LocalTime timeOfDay = LocalTime.ofSecondOfDay((int)seconds);
         return timeOfDay.toString();
     }
 
