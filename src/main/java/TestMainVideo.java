@@ -10,9 +10,9 @@ public class TestMainVideo {
         List<Interval> fupelList = sl.detectNotSilence();
         sl.report(fupelList);
 
-        double[] newSound = TestCutter.cut(fupelList, sl.getRawSound());
+        double[] newSound = SimpleCutter.cut(fupelList, sl.getRawSound());
 
-        SoundLoader.save("./temp/test.wav", newSound);
+        SoundIO.save("./temp/test.wav", newSound);
 
     }
 

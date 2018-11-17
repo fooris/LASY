@@ -6,7 +6,7 @@ public class TestMain {
 
     public static void main(String[] args) throws UnsupportedAudioFileException {
 
-        SilenceDetector sl = new SilenceDetector("./temp/audio.wav", 0.1, 0.5);
+        SilenceDetector sl = new SilenceDetector("./temp/audio.wav", 0.1, 0.05);
         List<Interval> fupelList = sl.detectSilence();
         sl.report(fupelList);
 
