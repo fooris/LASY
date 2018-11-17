@@ -1,7 +1,7 @@
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.List;
 
-public class Main {
+public class TestVideo {
 
 
     public static void main(String args[]) throws UnsupportedAudioFileException {
@@ -18,7 +18,7 @@ public class Main {
             minCutLength = Double.parseDouble(args[2]);
         }
 
-        double[] samples = AudioIO.read(audioPath);
+        double[] samples = AudioIO.load(audioPath);
 
         SilenceDetector sl = new SilenceDetector(samples, threshold, minCutLength);
         sl.detectNotSilence();
