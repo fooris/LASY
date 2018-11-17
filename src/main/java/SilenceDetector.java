@@ -5,17 +5,17 @@ import java.util.List;
 public class SilenceDetector {
 
     private double thresholdMult;
-    private double minSampleLength;
+    private double minCutLength;
     private double[] rawSound;
 
-    public SilenceDetector(String fileName, double thresholdMult, double minSampleLength) {
+    public SilenceDetector(String fileName, double thresholdMult, double minCutLength) {
         try {
             this.rawSound = SoundLoader.read(fileName);
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
         this.thresholdMult = thresholdMult;
-        this.minSampleLength = minSampleLength;
+        this.minCutLength = minCutLength;
     }
 
     public List<Interval> detectSilence() {
@@ -38,7 +38,7 @@ public class SilenceDetector {
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                if (i - startSample > minSampleLength * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR))
+                if (i - startSample > minCutLength * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR))
                     fupelList.add(new Interval(startSample, i - 1));
                 startSample = -1;
             }
@@ -47,7 +47,7 @@ public class SilenceDetector {
         return fupelList;
     }
 
-    public List<Interval> detectNotSilence() throws UnsupportedAudioFileException {
+    public List<Interval> detectNotSilence() {
         List<Interval> silenceFupelList = detectSilence();
 
         // we disregard first and last silence
