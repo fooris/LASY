@@ -55,7 +55,7 @@ public class FFMPEG {
         return il;
     }
 
-    static void cut(String inputFilePath, String outputFilePath, List<Interval> il) throws IOException {
+    public static void cut(String inputFilePath, String outputFilePath, List<Interval> il, boolean reencodeVideo, float speedFactor) throws IOException {
         int segnum  = 0;
         double timePos = 0;
 
@@ -99,8 +99,10 @@ public class FFMPEG {
         }
 
         System.out.println("done");
-        ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt";
-        ffmpegCmd += " -c copy " + outputFilePath;
+        ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt ";
+        ffmpegCmd += (reencodeVideo ? "" : "-c:v copy") + " -c:a copy ";
+        ffmpegCmd +=  (speedFactor == 0) ? "" : "-filter_complex \"[0:v]setpts="+ 1/speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a]\" -map \"[v]\" -map \"[a]\" ";
+        ffmpegCmd +=  outputFilePath;
         System.out.println(ffmpegCmd);
         p = Runtime.getRuntime().exec(ffmpegCmd);
 
@@ -121,7 +123,7 @@ public class FFMPEG {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i<segnum; i++)
-            Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+        //for (int i = 0; i<segnum; i++)
+            //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
     }
 }
