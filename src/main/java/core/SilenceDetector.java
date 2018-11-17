@@ -59,35 +59,6 @@ public class SilenceDetector {
         intervals = AudioTools.inverse(intervals, samples.length);
     }
 
-    public double getSecondsCut() {
-        return intervals.stream()
-                .map(i -> i.getTimeEnd() - i.getTimeStart())
-                .reduce(Double::sum)
-                .orElse(0.0);
-    }
-
-    public double getMaxSecondsCut() {
-        return intervals.stream()
-                .map(i -> i.getTimeEnd() - i.getTimeStart())
-                .reduce(Double::max)
-                .orElse(0.0);
-    }
-
-    public void report() {
-
-        double secondsCut = getSecondsCut();
-        double maxSecondsSaved = getMaxSecondsCut();
-
-        double avgSecondsCut = secondsCut / intervals.size();
-
-        System.out.printf("Number of cuts: %d\n", intervals.size());
-        System.out.printf("Seconds saved/cut: %.2f\n", secondsCut);
-        System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsCut);
-        System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
-        System.out.printf("Seconds saved: %.2f\n", secondsCut);
-        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsCut / (this.samples.length / AudioIO.SAMPLE_RATE));
-    }
-
     public List<Interval> getCutSequence() {
         return intervals;
     }

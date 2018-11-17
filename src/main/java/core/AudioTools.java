@@ -112,8 +112,7 @@ public class AudioTools {
     }
 
     public static List<Interval> pad(List<Interval> cutSequence, double paddingInterval) {
-        int paddingIntervalSamples = (int) (paddingInterval * AudioIO.SAMPLE_RATE);
-
+        int paddingIntervalSamples = (int) (paddingInterval * AudioIO.SAMPLE_RATE)/2;
         return cutSequence.stream()
                 .map(i -> new Interval(
                         i.getSampleStart() + paddingIntervalSamples,

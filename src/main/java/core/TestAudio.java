@@ -10,20 +10,20 @@ public class TestAudio {
 
         double[] samples = AudioIO.load("./temp/audio.wav");
 
-        double minCutLength = 0.5;
-
-        SilenceDetector sl = new SilenceDetector(samples, 0.1, minCutLength);
+        SilenceDetector sl = new SilenceDetector(samples, 0.10, 0.3);
         sl.detectSilence();
-        sl.report();
 
         List<Interval> cutSequence = sl.getCutSequence();
-        cutSequence = AudioTools.pad(cutSequence, 0.1);
-        double[] smoothedSamples = AudioTools.smoothCuts(sl.getCutSequence(), samples, 0.1);
-        double[] newSamples = AudioTools.cut(sl.getCutSequence(), smoothedSamples);
+        CutStatistics.report(cutSequence, samples.length);
 
+        List<Interval> paddedCutSequence = AudioTools.pad(cutSequence, 0.1);
+        CutStatistics.report(paddedCutSequence, samples.length);
+
+        double[] smoothedSamples = AudioTools.smoothCuts(paddedCutSequence, samples, 0.01);
+        double[] newSamples = AudioTools.cut(paddedCutSequence, smoothedSamples);
 
         AudioIO.save("./temp/test.wav", newSamples);
-        AudioTools.split("./temp/test", newSamples, 10 * 1000 * 1000);
+        //AudioTools.split("./temp/test", newSamples, 10 * 1000 * 1000);
 
     }
 

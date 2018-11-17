@@ -29,9 +29,9 @@ public class TestVideo {
 
         SilenceDetector sl = new SilenceDetector(samples, threshold, minCutLength);
         sl.detectNotSilence();
-        sl.report();
+        CutStatistics.report(sl.getCutSequence(), samples.length);
         try {
-            FFMPEG.cut(args[0], "/tmp/out.mp4",sl.getCutSequence(), true, 0.0f);
+            FFMPEG.cut(args[0], "/tmp/out.mp4", sl.getCutSequence(), true, 0.0f);
         } catch (IOException e) {
             e.printStackTrace();
         }
