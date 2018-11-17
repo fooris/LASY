@@ -15,8 +15,6 @@ public class GaussFilter implements Filter{
         for(int i = 0; i < kernelSize/2+1; i++){
             kernel[i] /=normalizer;
         }
-
-
     }
 
     public double[] filter(double[] arr){

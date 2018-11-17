@@ -13,6 +13,8 @@ public class SoundLoader {
 
     public static void main(String[] args) throws UnsupportedAudioFileException {
         double[] sound = read("./temp/audio.wav");
+        GaussFilter filter = new GaussFilter(500, 1000);
+
         System.out.println(sound.length);
         List<Interval> fupelList = SilenceDetector.detectSilence(sound, 0.1, SAMPLE_RATE / 2);
         double secondsSaved = fupelList.stream()
