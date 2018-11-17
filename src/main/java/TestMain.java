@@ -6,14 +6,16 @@ public class TestMain {
 
     public static void main(String[] args) throws UnsupportedAudioFileException {
 
-        SilenceDetector sl = new SilenceDetector("./temp/audio.wav", 0.1, 0.5);
-        List<Interval> fupelList = sl.detectNotSilence();
-        sl.report(fupelList);
+        double[] samples = AudioIO.read("./temp/audio.wav");
 
-        double[] newSound = SimpleCutter.cut(fupelList, sl.getRawSound());
+        SilenceDetector sl = new SilenceDetector(samples, 0.1, 0.5);
+        sl.detectNotSilence();
+        sl.report();
 
-        SoundIO.save("./temp/test.wav", newSound);
-        AudioSplitter.split("./temp/test", newSound, 10 * 1000 * 1000);
+        double[] newSound = AudioTools.cut(sl.getCutSequence(), samples);
+
+        AudioIO.save("./temp/test.wav", newSound);
+        AudioTools.split("./temp/test", newSound, 10 * 1000 * 1000);
 
     }
 
