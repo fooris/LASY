@@ -4,24 +4,21 @@ import java.util.List;
 
 public class SilenceDetector {
 
-    private String fileName;
-    private double threshold_mult;
-    private int min_sample_length;
+    private double thresholdMult;
+    private double minSampleLength;
     private double[] rawSound;
 
-    public SilenceDetector(String fileName, double threshold_mult, int min_sample_length) {
-        this.fileName = fileName;
+    public SilenceDetector(String fileName, double thresholdMult, double minSampleLength) {
         try {
             this.rawSound = SoundLoader.read(fileName);
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
-        this.threshold_mult = threshold_mult;
-        this.min_sample_length = min_sample_length;
+        this.thresholdMult = thresholdMult;
+        this.minSampleLength = minSampleLength;
     }
 
-    public List<Interval> detectSilence() throws UnsupportedAudioFileException {
-
+    public List<Interval> detectSilence() {
         double[] reducedSound = SoundLoader.reduce(this.rawSound, SoundLoader.REDUCTION_FACTOR);
         int kSize = (int) (1.5 * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR));
         Filter filter = new GaussFilter(kSize / 6, kSize);
@@ -34,16 +31,42 @@ public class SilenceDetector {
         int startSample = -1;
         List<Interval> fupelList = new ArrayList<>();
         for (int i = 1; i < filteredSound.length; i++) {
-            currentlySilent = Math.abs(filteredSound[i]) < threshold_mult * max;
+            currentlySilent = Math.abs(filteredSound[i]) < thresholdMult * max;
             // silence star
             if (startSample == -1 & currentlySilent) {
                 startSample = i;
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                if (i - startSample > min_sample_length) fupelList.add(new Interval(startSample, i - 1));
+                if (i - startSample > minSampleLength * SoundLoader.SAMPLE_RATE)
+                    fupelList.add(new Interval(startSample, i - 1));
                 startSample = -1;
             }
+        }
+
+        return fupelList;
+    }
+
+    public List<Interval> detectNotSilence() throws UnsupportedAudioFileException {
+        List<Interval> silenceFupelList = detectSilence();
+
+        double startTime = 0;
+        List<Interval> fupelList = detectSilence();
+
+        // start
+        if (silenceFupelList.get(0).getTimeStart() >= minSampleLength) {
+            fupelList.add(new Interval(0, silenceFupelList.get(0).getTimeStart()));
+            startTime = silenceFupelList.get(0).getTimeEnd();
+        }
+        // middle
+        for (Interval i : silenceFupelList) {
+            fupelList.add(new Interval(startTime, i.getTimeStart()));
+            startTime = i.getTimeEnd();
+        }
+        // end
+        if (silenceFupelList.get(silenceFupelList.size() - 1).getTimeEnd() <=
+                rawSound.length / (double) SoundLoader.SAMPLE_RATE - minSampleLength) {
+            fupelList.add(new Interval(startTime, rawSound.length / (double) SoundLoader.SAMPLE_RATE));
         }
 
         return fupelList;
