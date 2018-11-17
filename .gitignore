@@ -25,6 +25,3 @@ hs_err_pid*
 
 # java output directory
 /out/
-
-# temp directory for testing
-/temp/
