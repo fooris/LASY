@@ -60,25 +60,32 @@ public class SilenceDetector {
         this.intervals = intervals;
     }
 
-    public void report() {
-        double secondsSaved = intervals.stream()
+    public double getSecondsCut() {
+        return intervals.stream()
                 .map(i -> i.getTimeEnd() - i.getTimeStart())
                 .reduce(Double::sum)
                 .orElse(0.0);
+    }
 
-        double maxSecondsSaved = intervals.stream()
+    public double getMaxSecondsCut() {
+        return intervals.stream()
                 .map(i -> i.getTimeEnd() - i.getTimeStart())
                 .reduce(Double::max)
                 .orElse(0.0);
+    }
 
-        double avgSecondsSaved = secondsSaved / intervals.size();
+    public void report() {
+
+        double secondsCut = getSecondsCut();
+        double maxSecondsSaved = getMaxSecondsCut();
+
+        double avgSecondsCut = secondsCut / intervals.size();
 
         System.out.println("Number of cuts: " + intervals.size());
-        System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsSaved);
+        System.out.printf("Avg seconds saved/cut: %.2f\n", secondsCut);
         System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
-        System.out.printf("Seconds saved: %.2f\n", secondsSaved);
-        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (this.samples.length / AudioIO.SAMPLE_RATE));
-
+        System.out.printf("Seconds saved: %.2f\n", secondsCut);
+        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsCut / (this.samples.length / AudioIO.SAMPLE_RATE));
     }
 
     public List<Interval> getCutSequence() {
