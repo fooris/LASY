@@ -10,9 +10,9 @@ public class TestMain {
 
     public static void main(String[] args) throws UnsupportedAudioFileException {
 
-        double[] sound = read("./temp/audio.wav");
+        double[] sound = SoundLoader.read("./temp/audio.wav");
 
-        sound = reduce(sound, REDUCTION_FACTOR);
+        sound = SoundLoader.reduce(sound, REDUCTION_FACTOR);
         int kSize = (int) (1.5 * (SAMPLE_RATE / REDUCTION_FACTOR));
         GaussFilter filter = new GaussFilter(kSize / 6, kSize);
         sound = filter.filter(sound);
@@ -35,7 +35,7 @@ public class TestMain {
         System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsSaved);
         System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
         System.out.printf("Seconds saved: %.2f\n", secondsSaved);
-        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (sound.length / (SoundLoader.SAMPLE_RATE / REDUCTION_FACTOR)));
+        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (sound.length / (SAMPLE_RATE / REDUCTION_FACTOR)));
 
     }
 

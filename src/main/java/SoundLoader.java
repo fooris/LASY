@@ -10,7 +10,7 @@ public class SoundLoader {
 
 
 
-    private static double[] reduce(double[] orig, int reductionFactor) {
+    public static double[] reduce(double[] orig, int reductionFactor) {
         double[] reduced = new double[orig.length / reductionFactor];
         for (int i = 0; i < orig.length / reductionFactor; i++) {
             reduced[i] = orig[i * reductionFactor];
