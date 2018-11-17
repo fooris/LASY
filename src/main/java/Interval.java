@@ -5,8 +5,8 @@ public class Interval {
 
     public Interval(int samplePosStart, int samplePosEnd) {
         //Convert to frame num and save in framePos
-        this.timeStart = samplePosStart / (double) SoundLoader.SAMPLE_RATE;
-        this.timeEnd = samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
+        this.timeStart = samplePosStart * SoundLoader.REDUCTION_FACTOR / (double) SoundLoader.SAMPLE_RATE;
+        this.timeEnd = samplePosEnd * SoundLoader.REDUCTION_FACTOR / (double) SoundLoader.SAMPLE_RATE;
     }
 
     public Interval(double timeStart, double timeEnd) {

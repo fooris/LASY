@@ -19,10 +19,14 @@ public class GaussFilter implements Filter{
 
     public double[] filter(double[] arr){
 
+        for(int i = 0; i < arr.length; i++){
+            arr[i] = Math.abs(arr[i]);
+        }
+
         double[] res = new double[arr.length];
 
         //We do not filter the edges!
-        for(int i = kernel.length/2; i < arr.length - kernel.length/2; i++){
+        for(int i = kernel.length; i < arr.length - kernel.length; i++){
 
             res[i] += arr[i] * kernel[0];
 
