@@ -5,22 +5,12 @@ import java.util.List;
 
 public class SilenceDetector {
 
-    private double thresholdMult;
-    private int minSampleLength;
-    private double[] samples;
-    private List<Interval> intervals;
+    public static List<Interval> detectSilence(double[] samples, double thresholdMult, double minCutLength, boolean invert) {
+        int minSampleLength = (int) (minCutLength * AudioIO.SAMPLE_RATE);
 
-    public SilenceDetector(double[] samples, double thresholdMult, double minCutLength) {
-        this.samples = samples;
-        this.thresholdMult = thresholdMult;
-        this.minSampleLength = (int) (minCutLength * AudioIO.SAMPLE_RATE);
-        intervals = new ArrayList<>();
-    }
+        double[] reducedSound = AudioIO.reduce(samples, AudioIO.REDUCTION_FACTOR);
 
-    public void detectSilence() {
-        double[] reducedSound = AudioIO.reduce(this.samples, AudioIO.REDUCTION_FACTOR);
-
-        int filterSize = (int) ((1.5 * AudioIO.SAMPLE_RATE) / AudioIO.REDUCTION_FACTOR)+1;
+        int filterSize = (int) ((1.5 * AudioIO.SAMPLE_RATE) / AudioIO.REDUCTION_FACTOR) + 1;
         int sigma = filterSize / 6;
         Filter filter = new GaussFilter(sigma, filterSize);
         double[] filteredReducedSound = filter.filter(reducedSound);
@@ -39,7 +29,7 @@ public class SilenceDetector {
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                // if min cut length is satisfied
+                // if min finalize length is satisfied
                 if (i - startSample > minSampleLength / AudioIO.REDUCTION_FACTOR) {
                     Interval detectedInterval = new Interval(
                             startSample * AudioIO.REDUCTION_FACTOR,
@@ -51,15 +41,12 @@ public class SilenceDetector {
             }
         }
 
-        this.intervals = intervals;
+        //TODO FIX INVERT=TRUE
+        if(invert){
+            return AudioTools.inverse(intervals, samples.length);
+        }else{
+            return intervals;
+        }
     }
 
-    public void detectNotSilence() {
-        detectSilence();
-        intervals = AudioTools.inverse(intervals, samples.length);
-    }
-
-    public List<Interval> getCutSequence() {
-        return intervals;
-    }
 }

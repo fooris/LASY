@@ -34,7 +34,7 @@ public class AudioTools {
         // invert to get intervals that are supposed to be kept
         List<Interval> keepSequence = AudioTools.inverse(cutSequence, samples.length);
 
-        // calc length of cut audio
+        // calc length of finalize audio
         int newLength = keepSequence.stream()
                 .map(i -> i.getSampleEnd() - i.getSampleStart() + 1)
                 .reduce(Integer::sum)
@@ -66,7 +66,7 @@ public class AudioTools {
             kernel[i] = i / (kernelSize / 2);
         }
 
-        // compute cut points
+        // compute finalize points
         List<Integer> cutPoints = new LinkedList<>();
         for (Interval i : cutSequence) {
             cutPoints.add(i.getSampleStart());

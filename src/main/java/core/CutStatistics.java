@@ -34,9 +34,9 @@ public class CutStatistics {
 
         System.out.printf("Number of cuts: %d\n", intervals.size());
         System.out.printf("Seconds saved: %.2f\n", secondsCut);
-        System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsCut);
-        System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
-        System.out.printf("Min seconds saved/cut: %.2f\n", minSecondsSaved);
+        System.out.printf("Avg seconds saved/finalize: %.2f\n", avgSecondsCut);
+        System.out.printf("Max seconds saved/finalize: %.2f\n", maxSecondsSaved);
+        System.out.printf("Min seconds saved/finalize: %.2f\n", minSecondsSaved);
         System.out.printf("Seconds saved: %.2f\n", secondsCut);
         System.out.printf("Percent saved: %.2f\n", 100.0 * secondsCut / (origSampleLength / AudioIO.SAMPLE_RATE));
     }

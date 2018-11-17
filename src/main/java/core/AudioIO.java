@@ -16,6 +16,7 @@ public class AudioIO {
 
     public static final int SAMPLE_RATE = 16000;
     public static final int REDUCTION_FACTOR = 50;
+    private static final double MAX_16_BIT = Short.MAX_VALUE;     // 32,767
 
     public static double[] reduce(double[] orig, int reductionFactor) {
         double[] reduced = new double[orig.length / reductionFactor];
@@ -24,9 +25,6 @@ public class AudioIO {
         }
         return reduced;
     }
-
-    private static final double MAX_16_BIT = Short.MAX_VALUE;     // 32,767
-
 
     // loads audio samples from file returns double[], values in [-1.0,1.0]
     public static double[] load(String filename) throws UnsupportedAudioFileException {

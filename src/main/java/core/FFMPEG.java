@@ -26,22 +26,17 @@ public class FFMPEG {
     /**
      * The final conversion method
      *
-     * @param inputFilePath The file that should be shortend
+     * @param inputFilePath  The file that should be shortend
      * @param outputFilePath The output file
-     * @param cutSequence the parts in the file that we want to remove
-     * @param reencodeVideo worse on performance, but fixes some bugs in the output file
-     * @param speedFactor how fast should the video be accelerated? (0 or 1) for no acceleration
-     * @param numSamples number of samples in the audio file which was used to generate cutSequence (ugly hack)
+     * @param keepSequence   the parts in the file that we want to keep
+     * @param reencodeVideo  worse on performance, but fixes some bugs in the output file
+     * @param speedFactor    how fast should the video be accelerated? (0 or 1) for no acceleration
      * @throws IOException
      */
-    public static void cut(String inputFilePath, String outputFilePath, List<Interval> cutSequence, boolean reencodeVideo, float speedFactor, int numSamples) throws IOException {
-
-        // invert cut sequence (the cut sequence is what we want to *remove*)
-        List<Interval> keepSequence = AudioTools.inverse(cutSequence, numSamples);
-
-        // make sure ffmpeg can cut videos (problems at small sizes)
+    public static void finalize(String inputFilePath, String outputFilePath, List<Interval> keepSequence, boolean reencodeVideo, float speedFactor) throws IOException {
+        // make sure ffmpeg can finalize videos (problems with small sizes)
         keepSequence = keepSequence.stream()
-                .filter(i -> (i.getTimeEnd()-i.getTimeStart() > 0.1))
+                .filter(i -> (i.getTimeEnd() - i.getTimeStart() > 0.1))
                 .collect(Collectors.toList());
 
         int segnum = 0;
@@ -84,12 +79,12 @@ public class FFMPEG {
         System.out.println("done");
         ffmpegCmd = FFMPEG_PATH + " -nostdin -y -f concat -safe 0 -i /tmp/segments.txt ";
 
-        boolean accelerate= !(speedFactor == 0 || speedFactor==1);
+        boolean accelerate = !(speedFactor == 0 || speedFactor == 1);
 
         if (!accelerate)
             ffmpegCmd += (reencodeVideo ? "" : "-c:v copy") + " -c:a copy ";
         else
-            ffmpegCmd +=  "-filter_complex [0:v]setpts="+ 1/speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a] -map [v] -map [a] ";
+            ffmpegCmd += "-filter_complex [0:v]setpts=" + 1 / speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a] -map [v] -map [a] ";
 
         ffmpegCmd += outputFilePath;
         System.out.println(ffmpegCmd);
@@ -109,8 +104,9 @@ public class FFMPEG {
         }
 
         // cleanup
-        for (int i = 0; i<segnum; i++)
+        for (int i = 0; i < segnum; i++) {
             Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+        }
         Files.delete(Paths.get(tmpDir + "/" + "segments.txt"));
     }
 }
