@@ -1,4 +1,3 @@
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class IntervalHandler {
         intervals.add(new Interval(samplePosStart, samplePosEnd));
     }
 
-    public List<Interval> getIntervals(){
+    public List<Interval> getIntervals() {
         return intervals;
     }
 
@@ -23,19 +22,19 @@ public class IntervalHandler {
         private Interval(int samplePosStart, int samplePosEnd) {
 
             //Convert to frame num and save in framePos
-            double posStart = ((float) samplePosStart) / SAMPLE_RATE;
-            double posEnd = ((float) samplePosEnd) / SAMPLE_RATE;
+            double posStart = samplePosStart / (double) SAMPLE_RATE;
+            double posEnd = samplePosEnd / (double) SAMPLE_RATE;
 
             this.samplePosStart = samplePosStart;
             this.samplePosEnd = samplePosEnd;
         }
 
-        public int getFramePosStart(int frameRate) {
-            return samplePosStart * frameRate / SAMPLE_RATE;
+        public double getTimEnd() {
+            return samplePosStart / (double) SAMPLE_RATE;
         }
 
-        public int getFramePosEnd(int frameRate) {
-            return samplePosEnd * frameRate / SAMPLE_RATE;
+        public double getTimeEnd() {
+            return samplePosEnd / (double) SAMPLE_RATE;
         }
 
         public int getSamplePosStart() {
@@ -45,8 +44,6 @@ public class IntervalHandler {
         public int getSamplePosEnd() {
             return samplePosEnd;
         }
-
-
 
         @Override
         public String toString() {
