@@ -9,6 +9,8 @@ import java.util.List;
 public class SoundLoader {
 
 
+    public static final int SAMPLE_RATE = 16000;
+    public static final int REDUCTION_FACTOR = 50;
 
     public static double[] reduce(double[] orig, int reductionFactor) {
         double[] reduced = new double[orig.length / reductionFactor];

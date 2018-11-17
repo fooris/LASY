@@ -3,6 +3,8 @@ public class Interval {
     private double timeStart;
     private double timeEnd;
 
+
+
     public Interval(int samplePosStart, int samplePosEnd) {
         //Convert to frame num and save in framePos
         this.timeStart = samplePosStart * SoundLoader.REDUCTION_FACTOR / (double) SoundLoader.SAMPLE_RATE;
