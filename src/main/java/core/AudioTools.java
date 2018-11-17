@@ -50,6 +50,8 @@ public class AudioTools {
         return newSamples;
     }
 
-    public static double[] smoothCuts(List<Interval> intervals, double[] samples)
+    public static double[] smoothCuts(List<Interval> intervals, double[] samples){
+        return samples;
+    }
 
 }
