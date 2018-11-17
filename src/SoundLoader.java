@@ -15,14 +15,14 @@ public class SoundLoader {
         double[] sound = read("./temp/audio.wav");
         System.out.println(sound.length);
         List<Interval> fupelList = SilenceDetector.detectSilence(sound, 0.1, SAMPLE_RATE / 2);
-        int samplesSaved = fupelList.stream()
-                .map(i -> i.getSamplePosEnd() - i.getSamplePosStart())
-                .reduce(Integer::sum)
-                .orElse(0);
+        double secondsSaved = fupelList.stream()
+                .map(i -> i.getTimeEnd() - i.getTimeStart())
+                .reduce(Double::sum)
+                .orElse(0.0);
 
         System.out.println("Number of cuts: " + fupelList.size());
-        System.out.printf("Seconds saved: %.2f\n", samplesSaved/(float)SAMPLE_RATE);
-        System.out.printf("Percent saved: %.2f\n", 100.0*samplesSaved/sound.length);
+        System.out.printf("Seconds saved: %.2f\n", secondsSaved);
+        System.out.printf("Percent saved: %.2f\n", 100.0*secondsSaved/(sound.length/SoundLoader.SAMPLE_RATE));
 
     }
 

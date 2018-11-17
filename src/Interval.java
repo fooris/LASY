@@ -1,36 +1,30 @@
 public class Interval {
 
-    private int samplePosStart;
-    private int samplePosEnd;
+    private double timeStart;
+    private double timeEnd;
 
     public Interval(int samplePosStart, int samplePosEnd) {
-
         //Convert to frame num and save in framePos
-        double posStart = samplePosStart / (double) SoundLoader.SAMPLE_RATE;
-        double posEnd = samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
-
-        this.samplePosStart = samplePosStart;
-        this.samplePosEnd = samplePosEnd;
+        this.timeStart = samplePosStart / (double) SoundLoader.SAMPLE_RATE;
+        this.timeEnd = samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
     }
 
-    public double getTimEnd() {
-        return samplePosStart / (double) SoundLoader.SAMPLE_RATE;
+    public Interval(double timeStart, double timeEnd) {
+        //Convert to frame num and save in framePos
+        this.timeStart = timeStart;
+        this.timeEnd = timeEnd;
+    }
+
+    public double getTimeStart() {
+        return timeStart;
     }
 
     public double getTimeEnd() {
-        return samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
-    }
-
-    public int getSamplePosStart() {
-        return samplePosStart;
-    }
-
-    public int getSamplePosEnd() {
-        return samplePosEnd;
+        return timeEnd;
     }
 
     @Override
     public String toString() {
-        return "(" + samplePosStart + "," + samplePosEnd + ')';
+        return String.format("(%.2f,%.2f)", timeStart, timeEnd);
     }
 }
