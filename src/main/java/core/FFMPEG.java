@@ -1,6 +1,8 @@
 package core;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,7 +12,7 @@ public class FFMPEG {
 
     public static String convertToAudioAndGetPath(String inputFilePath) throws IOException {
         String outFilePath = tmpDir + "/audio.wav";
-        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -ac 1 -ar 16000 -y " + outFilePath;
+        String ffmpegCommand = FFMPEG_PATH + " -nostdin -i " + " " + inputFilePath + " -ac 1 -ar 16000 -y " + outFilePath;
         System.out.println(ffmpegCommand);
         Process p = Runtime.getRuntime().exec(ffmpegCommand);
         try {
@@ -21,38 +23,20 @@ public class FFMPEG {
         return outFilePath;
     }
 
-//    //TODO: fix scanner
-//    public static List<Interval> getSilence(String inputFilePath, double db, double minLegth) {
-//        String super1337awkCommand = "awk '$4 == \"silence_end:\" { print $5 \" \" $8 }'";
-//        String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -af silencedetect=n=" + db + "dB:d=" + minLegth + " -f null -";
-//
-//        String cmd = ffmpegCommand + " 2>&1 >/dev/null | " + super1337awkCommand;
-//        System.out.println(ffmpegCommand);
-//        List<Interval> il = new ArrayList<>();
-//        try {
-//            Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream());
-//            System.out.println(s.next());
-//            if (s.hasNext())
-//                do {
-//                    for (int i = 0; i < 2; i++) {
-//                        Interval ival;
-//                        double start;
-//                        double end;
-//                        end = s.nextDouble();
-//                        start = end - s.nextDouble();
-//                        ival = new Interval(start, end);
-//                        il.add(ival);
-//                    }
-//                } while (s.hasNext());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return il;
-//    }
-
+    /**
+     * The final conversion method
+     *
+     * @param inputFilePath The file that should be shortend
+     * @param outputFilePath The output file
+     * @param cutSequence the parts in the file that we want to remove
+     * @param reencodeVideo worse on performance, but fixes some bugs in the output file
+     * @param speedFactor how fast should the video be accelerated? (0 or 1) for no acceleration
+     * @param numSamples number of samples in the audio file which was used to generate cutSequence (ugly hack)
+     * @throws IOException
+     */
     public static void cut(String inputFilePath, String outputFilePath, List<Interval> cutSequence, boolean reencodeVideo, float speedFactor, int numSamples) throws IOException {
 
-        // invert cut sequence
+        // invert cut sequence (the cut sequence is what we want to *remove*)
         List<Interval> keepSequence = AudioTools.inverse(cutSequence, numSamples);
 
         // make sure ffmpeg can cut videos (problems at small sizes)
@@ -86,11 +70,6 @@ public class FFMPEG {
         BufferedReader stdError = new BufferedReader(new
                 InputStreamReader(p.getErrorStream()));
 
-        /*
-        BufferedReader stdInput = new BufferedReader(new
-                InputStreamReader(p.getInputStream()));
-                */
-
         String s = null;
         while ((s = stdError.readLine()) != null) {
             System.out.println(s);
@@ -103,7 +82,7 @@ public class FFMPEG {
         }
 
         System.out.println("done");
-        ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt ";
+        ffmpegCmd = FFMPEG_PATH + " -nostdin -y -f concat -safe 0 -i /tmp/segments.txt ";
 
         boolean accelerate= !(speedFactor == 0 || speedFactor==1);
 
@@ -119,11 +98,6 @@ public class FFMPEG {
         stdError = new BufferedReader(new
                 InputStreamReader(p.getErrorStream()));
 
-        /*
-        BufferedReader stdInput = new BufferedReader(new
-                InputStreamReader(p.getInputStream()));
-                */
-
         s = null;
         while ((s = stdError.readLine()) != null) {
             System.out.println(s);
@@ -133,7 +107,10 @@ public class FFMPEG {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //for (int i = 0; i<segnum; i++)
-        //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+
+        // cleanup
+        for (int i = 0; i<segnum; i++)
+            Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+        Files.delete(Paths.get(tmpDir + "/" + "segments.txt"));
     }
 }
