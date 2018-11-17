@@ -12,9 +12,14 @@ public class Main {
         if(args.length >1){
             thres = Double.parseDouble(args[1]);
         }
-        SilenceDetector sl =  new SilenceDetector(audio, thres, (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR) / 2);
-        List<Interval> fupelList = sl.detectSilence();
+        SilenceDetector sl =  new SilenceDetector(audio, thres, 0.5);
+        List<Interval> fupelList = sl.detectNotSilence();
         sl.report(fupelList);
+        try {
+            FFMPEG.cut(args[0],"/tmp/out.mp4", fupelList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
