@@ -4,28 +4,12 @@ import java.util.List;
 
 public class IntervalHandler implements Iterable {
 
-
-    //Values per Second
-    private int sampleRate = 16000;
-
-    //Frames per second
-    private int frameRate;
-
+    public static final int SAMPLE_RATE = 16000;
 
     private List<Interval> intervals = new LinkedList<>();
 
-
-    public IntervalHandler(int frameRate, int sampleRate){
-        this.frameRate = frameRate;
-        this.sampleRate = sampleRate;
-    }
-
-    public IntervalHandler(int frameRate){
-        this.frameRate = frameRate;
-    }
-
-    public void addInterval(long samplePosStart, long samplePosEnd){
-        intervals.add(new Interval(samplePosStart , samplePosEnd));
+    public void addInterval(int samplePosStart, int samplePosEnd) {
+        intervals.add(new Interval(samplePosStart, samplePosEnd));
     }
 
     @Override
@@ -33,29 +17,26 @@ public class IntervalHandler implements Iterable {
         return intervals.iterator();
     }
 
+    public class Interval {
+        private int samplePosStart;
+        private int samplePosEnd;
 
-    public class Interval{
-        private int framePosStart;
-        private int framePosEnd;
-
-
-
-        private Interval(long samplePosStart, long samplePosEnd){
+        private Interval(int samplePosStart, int samplePosEnd) {
 
             //Convert to frame num and save in framePos
-            double posStart = ((float) samplePosStart) / sampleRate;
-            double posEnd = ((float) samplePosEnd) / sampleRate;
+            double posStart = ((float) samplePosStart) / SAMPLE_RATE;
+            double posEnd = ((float) samplePosEnd) / SAMPLE_RATE;
 
-            framePosStart = (int) Math.round(posStart * frameRate);
-            framePosEnd = (int) Math.round(posEnd * frameRate);
+            this.samplePosStart = samplePosStart;
+            this.samplePosEnd = samplePosEnd;
         }
 
-        public int getFramePosStart() {
-            return framePosStart;
+        public int getFramePosStart(int frameRate) {
+            return samplePosStart * frameRate / SAMPLE_RATE;
         }
 
-        public int getFramePosEnd() {
-            return framePosEnd;
+        public int getFramePosEnd(int frameRate) {
+            return samplePosEnd * frameRate / SAMPLE_RATE;
         }
     }
 

@@ -10,7 +10,7 @@ public class SoundLoader {
     public static void main(String[] args) throws UnsupportedAudioFileException {
         double [] sound = read("./temp/audio.wav");
         System.out.println(sound.length);
-
+        IntervalHandler fupelList = SilenceDetector.detectSilence(sound, 0.1);
     }
 
     private static final double MAX_16_BIT = Short.MAX_VALUE;     // 32,767
