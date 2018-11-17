@@ -111,13 +111,32 @@ public class AudioTools {
         return inverseIntervals;
     }
 
-    public static List<Interval> pad(List<Interval> cutSequence, double paddingInterval) {
-        int paddingIntervalSamples = (int) (paddingInterval * AudioIO.SAMPLE_RATE)/2;
-        return cutSequence.stream()
-                .map(i -> new Interval(
-                        i.getSampleStart() + paddingIntervalSamples,
-                        i.getSampleEnd() - paddingIntervalSamples)
-                ).filter(i -> i.getSampleEnd() - i.getSampleStart() > 0)
+    public static List<Interval> trim(List<Interval> cutSequence, double trimInterval) {
+        int trimIntervalSamples = (int) (trimInterval * AudioIO.SAMPLE_RATE) / 2;
+        List<Interval> trimIntervals = new LinkedList<>();
+
+        // start
+        Interval trimStartInterval = new Interval(
+                cutSequence.get(0).getSampleStart(),
+                cutSequence.get(0).getSampleEnd() - trimIntervalSamples);
+        trimIntervals.add(trimStartInterval);
+
+        // middle
+        for (int i = 1; i < cutSequence.size() - 1; i++) {
+            Interval paddedInterval = new Interval(
+                    cutSequence.get(i).getSampleStart() + trimIntervalSamples,
+                    cutSequence.get(i).getSampleEnd() - trimIntervalSamples);
+            trimIntervals.add(paddedInterval);
+        }
+
+        //end
+        Interval trimEndInterval = new Interval(
+                cutSequence.get(cutSequence.size() - 1).getSampleStart() + trimIntervalSamples,
+                cutSequence.get(cutSequence.size() - 1).getSampleEnd());
+        trimIntervals.add(trimEndInterval);
+
+        return trimIntervals.stream()
+                .filter(i -> (i.getSampleEnd() - i.getSampleStart() > 0))
                 .collect(Collectors.toList());
     }
 }

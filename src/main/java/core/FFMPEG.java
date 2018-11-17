@@ -2,6 +2,7 @@ package core;
 
 import java.io.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FFMPEG {
     private static final String FFMPEG_PATH = "/usr/bin/ffmpeg";
@@ -49,7 +50,16 @@ public class FFMPEG {
 //        return il;
 //    }
 
-    public static void cut(String inputFilePath, String outputFilePath, List<Interval> il, boolean reencodeVideo, float speedFactor) throws IOException {
+    public static void cut(String inputFilePath, String outputFilePath, List<Interval> cutSequence, boolean reencodeVideo, float speedFactor, int numSamples) throws IOException {
+
+        // invert cut sequence
+        List<Interval> keepSequence = AudioTools.inverse(cutSequence, numSamples);
+
+        // make sure ffmpeg can cut videos (problems at small sizes)
+        keepSequence = keepSequence.stream()
+                .filter(i -> (i.getTimeEnd()-i.getTimeStart() > 0.1))
+                .collect(Collectors.toList());
+
         int segnum = 0;
         double timePos = 0;
 
@@ -61,7 +71,7 @@ public class FFMPEG {
 
         BufferedWriter fileWrite = new BufferedWriter(new FileWriter("/tmp/segments.txt"));
         System.out.println();
-        for (Interval i : il) {
+        for (Interval i : keepSequence) {
             float start = (float) i.getTimeStart();
             float end = (float) i.getTimeEnd();
             String tmpOutFilePath = tmpDir + "/" + tmpFilePrefix + String.format("%05d", segnum) + extention;

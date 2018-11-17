@@ -16,7 +16,7 @@ public class TestAudio {
         List<Interval> cutSequence = sl.getCutSequence();
         CutStatistics.report(cutSequence, samples.length);
 
-        List<Interval> paddedCutSequence = AudioTools.pad(cutSequence, 0.1);
+        List<Interval> paddedCutSequence = AudioTools.trim(cutSequence, 0.1);
         CutStatistics.report(paddedCutSequence, samples.length);
 
         double[] smoothedSamples = AudioTools.smoothCuts(paddedCutSequence, samples, 0.01);
