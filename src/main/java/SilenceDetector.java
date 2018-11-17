@@ -38,7 +38,7 @@ public class SilenceDetector {
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                if (i - startSample > minSampleLength * SoundLoader.SAMPLE_RATE)
+                if (i - startSample > minSampleLength * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR))
                     fupelList.add(new Interval(startSample, i - 1));
                 startSample = -1;
             }
