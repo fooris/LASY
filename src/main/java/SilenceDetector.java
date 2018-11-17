@@ -50,23 +50,11 @@ public class SilenceDetector {
     public List<Interval> detectNotSilence() throws UnsupportedAudioFileException {
         List<Interval> silenceFupelList = detectSilence();
 
-        double startTime = 0;
-        List<Interval> fupelList = detectSilence();
-
-        // start
-        if (silenceFupelList.get(0).getTimeStart() >= minSampleLength) {
-            fupelList.add(new Interval(0, silenceFupelList.get(0).getTimeStart()));
-            startTime = silenceFupelList.get(0).getTimeEnd();
-        }
-        // middle
-        for (Interval i : silenceFupelList) {
-            fupelList.add(new Interval(startTime, i.getTimeStart()));
-            startTime = i.getTimeEnd();
-        }
-        // end
-        if (silenceFupelList.get(silenceFupelList.size() - 1).getTimeEnd() <=
-                rawSound.length / (double) SoundLoader.SAMPLE_RATE - minSampleLength) {
-            fupelList.add(new Interval(startTime, rawSound.length / (double) SoundLoader.SAMPLE_RATE));
+        // we disregard first and last silence
+        List<Interval> fupelList = new ArrayList<>();
+        for (int i = 1; i < silenceFupelList.size(); i++) {
+            fupelList.add(new Interval(silenceFupelList.get(i-1).getTimeEnd(),
+                    silenceFupelList.get(i).getTimeStart()));
         }
 
         return fupelList;
