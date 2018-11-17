@@ -10,7 +10,7 @@ public class SilenceDetector {
 
     public SilenceDetector(String fileName, double thresholdMult, double minCutLength) {
         try {
-            this.rawSound = SoundLoader.read(fileName);
+            this.rawSound = SoundIO.read(fileName);
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
@@ -19,8 +19,8 @@ public class SilenceDetector {
     }
 
     public List<Interval> detectSilence() {
-        double[] reducedSound = SoundLoader.reduce(this.rawSound, SoundLoader.REDUCTION_FACTOR);
-        int kSize = (int) (1.5 * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR));
+        double[] reducedSound = SoundIO.reduce(this.rawSound, SoundIO.REDUCTION_FACTOR);
+        int kSize = (int) (1.5 * (SoundIO.SAMPLE_RATE / SoundIO.REDUCTION_FACTOR));
         Filter filter = new GaussFilter(kSize / 6, kSize);
         double[] filteredSound = filter.filter(reducedSound);
 
@@ -38,7 +38,7 @@ public class SilenceDetector {
             }
             // silence stop
             if (startSample != -1 & !currentlySilent) {
-                if (i - startSample > minCutLength * (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR))
+                if (i - startSample > minCutLength * (SoundIO.SAMPLE_RATE / SoundIO.REDUCTION_FACTOR))
                     fupelList.add(new Interval(startSample, i - 1));
                 startSample = -1;
             }
@@ -81,7 +81,7 @@ public class SilenceDetector {
         System.out.printf("Avg seconds saved/cut: %.2f\n", avgSecondsSaved);
         System.out.printf("Max seconds saved/cut: %.2f\n", maxSecondsSaved);
         System.out.printf("Seconds saved: %.2f\n", secondsSaved);
-        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (rawSound.length / SoundLoader.SAMPLE_RATE));
+        System.out.printf("Percent saved: %.2f\n", 100.0 * secondsSaved / (rawSound.length / SoundIO.SAMPLE_RATE));
 
     }
 }

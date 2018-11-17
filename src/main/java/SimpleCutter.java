@@ -1,12 +1,12 @@
 import java.util.List;
 
-public class TestCutter {
+public class SimpleCutter {
 
     public static double[] cut(List<Interval> fupelList, double[] oldSound) {
 
         int newLength = fupelList.stream()
-                .map(i -> (int) (i.getTimeEnd() * SoundLoader.SAMPLE_RATE) -
-                        (int) (i.getTimeStart() * SoundLoader.SAMPLE_RATE) + 1)
+                .map(i -> (int) (i.getTimeEnd() * SoundIO.SAMPLE_RATE) -
+                        (int) (i.getTimeStart() * SoundIO.SAMPLE_RATE) + 1)
                 .reduce(Integer::sum)
                 .orElse(0);
 
@@ -14,8 +14,8 @@ public class TestCutter {
         int newIndex = 0;
 
         for (Interval i : fupelList) {
-            int startSample = (int) (i.getTimeStart() * SoundLoader.SAMPLE_RATE);
-            int endSample = (int) (i.getTimeEnd() * SoundLoader.SAMPLE_RATE);
+            int startSample = (int) (i.getTimeStart() * SoundIO.SAMPLE_RATE);
+            int endSample = (int) (i.getTimeEnd() * SoundIO.SAMPLE_RATE);
             for (int n = startSample; n <= endSample; n++) {
                 newSound[newIndex++] = oldSound[n];
             }

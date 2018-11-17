@@ -1,5 +1,4 @@
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.IOException;
 import java.util.List;
 
 public class Main {
@@ -12,7 +11,7 @@ public class Main {
         if(args.length >1){
             thres = Double.parseDouble(args[1]);
         }
-        SilenceDetector sl =  new SilenceDetector(audio, thres, (SoundLoader.SAMPLE_RATE / SoundLoader.REDUCTION_FACTOR) / 2);
+        SilenceDetector sl =  new SilenceDetector(audio, thres, (SoundIO.SAMPLE_RATE / SoundIO.REDUCTION_FACTOR) / 2);
         List<Interval> fupelList = sl.detectSilence();
         sl.report(fupelList);
     }

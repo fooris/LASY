@@ -10,9 +10,10 @@ public class TestMain {
         List<Interval> fupelList = sl.detectSilence();
         sl.report(fupelList);
 
-        double[] newSound = TestCutter.cut(fupelList, sl.getRawSound());
+        double[] newSound = SimpleCutter.cut(fupelList, sl.getRawSound());
 
-        SoundLoader.save("./temp/test.wav", newSound);
+        SoundIO.save("./temp/test.wav", newSound);
+        AudioSplitter.split("./temp/test", newSound, 10 * 1000 * 1000);
 
     }
 

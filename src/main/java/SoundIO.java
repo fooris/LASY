@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class SoundLoader {
+public class SoundIO {
 
 
     public static final int SAMPLE_RATE = 16000;
