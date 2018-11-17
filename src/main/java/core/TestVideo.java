@@ -2,6 +2,7 @@ package core;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
+import java.util.List;
 
 public class TestVideo {
 
@@ -29,7 +30,13 @@ public class TestVideo {
 
         SilenceDetector sl = new SilenceDetector(samples, threshold, minCutLength);
         sl.detectNotSilence();
-        CutStatistics.report(sl.getCutSequence(), samples.length);
+
+        List<Interval> paddedCutSequence = AudioTools.pad(sl.getCutSequence(), 0.1);
+        CutStatistics.report(paddedCutSequence, samples.length);
+
+        double[] smoothedSamples = AudioTools.smoothCuts(paddedCutSequence, samples, 0.01);
+        double[] newSamples = AudioTools.cut(paddedCutSequence, smoothedSamples);
+
         try {
             FFMPEG.cut(args[0], "/tmp/out.mp4", sl.getCutSequence(), true, 0.0f);
         } catch (IOException e) {
