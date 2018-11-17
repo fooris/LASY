@@ -18,8 +18,8 @@ public class Main extends Application {
 
         //Load main xml as UI
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("AcceleratorUI.fxml"));
-        primaryStage.setTitle("ACC");
-        primaryStage.setScene(new Scene(root, 640, 400));
+        primaryStage.setTitle("LASY");
+        primaryStage.setScene(new Scene(root, 640, 440));
         primaryStage.show();
 
     }
