@@ -1,9 +1,6 @@
 package ui;
 
-import core.AudioIO;
-import core.CutStatistics;
-import core.FFMPEG;
-import core.SilenceDetector;
+import core.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -24,6 +21,8 @@ import java.io.IOException;
 import java.time.LocalTime;
 
 public class Controller {
+    LectureMaker lm;
+
     //Own progress interface
     IUpdateProgress updater = new IUpdateProgress() {
         @Override
@@ -105,17 +104,18 @@ public class Controller {
 
     @FXML
     private void handleVideoOpen(ActionEvent event) { //TODO error popups
-//        try {
-//            //Open file
-//            FileChooser chooser = new FileChooser();
-//            chooser.setTitle("Open File");
-//            File file = chooser.showOpenDialog(new Stage());
-//            if (file==null) {return;}
-//
-//            System.out.println(file);
-//
-//            //Store into label
-//            lblInfile.setText(file.getAbsolutePath());
+        try {
+            //Open file
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Open File");
+            File file = chooser.showOpenDialog(new Stage());
+            if (file==null) {return;}
+            lm = new LectureMaker(file.getAbsolutePath());
+
+            System.out.println(file);
+
+            //Store into label
+            lblInfile.setText(file.getAbsolutePath());
 //
 //            //Get options
 //            double gapLength = sldMaxGapLength.getValue();
