@@ -46,7 +46,7 @@ public class SoundLoader {
     }
 
     // return data as a byte array
-    private static byte[] readByte(String filename) throws UnsupportedAudioFileException {
+    private static byte[] readByte(String filename) {
         byte[] data;
         AudioInputStream ais;
         try {
