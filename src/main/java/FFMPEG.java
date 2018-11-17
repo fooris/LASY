@@ -119,7 +119,7 @@ public class FFMPEG {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //for (int i = 0; i<segnum; i++)
-            //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
+        for (int i = 0; i<segnum; i++)
+            Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
     }
 }
