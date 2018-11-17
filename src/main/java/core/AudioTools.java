@@ -1,3 +1,5 @@
+package core;
+
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -47,5 +49,7 @@ public class AudioTools {
 
         return newSamples;
     }
+
+    public static double[] smoothCuts(List<Interval> intervals, double[] samples)
 
 }

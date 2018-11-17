@@ -1,6 +1,7 @@
+package core;
+
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.util.List;
 
 public class TestVideo {
 

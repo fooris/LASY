@@ -1,3 +1,5 @@
+package core;
+
 public class Interval {
 
     private double timeStart;
