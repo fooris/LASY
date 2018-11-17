@@ -24,6 +24,10 @@ public class LectureMaker {
         this.outputPath = outputPath;
     }
 
+    public String getOutputPath() {
+        return this.outputPath;
+    }
+
     public void setReencodeVideo(boolean reencodeVideo) {
         this.reencodeVideo = reencodeVideo;
     }

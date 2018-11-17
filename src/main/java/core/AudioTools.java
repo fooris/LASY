@@ -1,6 +1,7 @@
 package core;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -9,7 +10,9 @@ import java.util.stream.Collectors;
 
 public class AudioTools {
 
-    public static List<String> split(String outFilename, double[] samples, int byteLength) throws UnsupportedAudioFileException {
+    public static List<String> split(String videoPath, int byteLength) throws IOException, UnsupportedAudioFileException {
+        String audioPath = FFMPEG.convertToAudioAndGetPath(videoPath);
+        double[] samples = AudioIO.load(audioPath);
 
         List<String> outPaths = new LinkedList<>();
 
@@ -23,8 +26,9 @@ public class AudioTools {
                     i * samplesPerSplit,
                     Integer.min((i + 1) * samplesPerSplit, samples.length)
             );
-            AudioIO.save(outFilename + "_" + i + ".wav", split);
-            outPaths.add(outFilename + "_" + i + ".wav");
+            String fileName = "/tmp/split"+ i + ".wav";
+            AudioIO.save(fileName, split);
+            outPaths.add(fileName);
         }
 
         return outPaths;

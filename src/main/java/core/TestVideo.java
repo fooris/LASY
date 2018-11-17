@@ -1,5 +1,7 @@
 package core;
 
+import java.util.List;
+
 public class TestVideo {
 
 
@@ -26,9 +28,13 @@ public class TestVideo {
 //            e.printStackTrace();
 //        }
 
-        LectureMaker lm = new LectureMaker("./temp/1lasser_short.mp4");
+        LectureMaker lm = new LectureMaker("./temp/c14e2056-4b19-4e81-97ac-4a3046f30a3a.mp4");
         System.out.println(lm.genPreview());
         lm.genFinal();
+        List<String> splitAudioPaths = AudioTools.split(lm.getOutputPath(), 10 * 1000 * 1000);
+        for (String s : splitAudioPaths) {
+            System.out.println(s);
+        }
     }
 
 }
