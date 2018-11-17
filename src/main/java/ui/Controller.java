@@ -1,13 +1,19 @@
 package ui;
 
 import core.AudioIO;
+import core.CutStatistics;
 import core.FFMPEG;
 import core.SilenceDetector;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -28,6 +34,7 @@ public class Controller {
     //Silence detector
     SilenceDetector silenceDetector = null;
     File inFile = null;
+    boolean isPlaying = false;
 
    //FXML stuff
     @FXML
@@ -44,6 +51,31 @@ public class Controller {
     private Slider sldRelativeSilenceThreshold;
     @FXML
     private Slider sldMaxGapLength;
+    @FXML
+    private Pane mediaPane;
+    @FXML
+    private MediaView videoView;
+
+
+    @FXML
+    private void playerPreview(ActionEvent event) {
+        Media media = new Media("file:///home/administrator/SideProjects/test2.mp4");
+        MediaPlayer player = new MediaPlayer( media );
+
+        videoView.setMediaPlayer(player);
+    }
+
+    @FXML
+    private void playerPlay(ActionEvent event) {
+        MediaPlayer mp = videoView.getMediaPlayer();
+        if (mp==null) {return;}
+        if (isPlaying) {
+            mp.pause();
+        } else {
+            mp.play();
+        }
+        isPlaying = !isPlaying;
+    }
 
 
     @FXML
@@ -74,13 +106,12 @@ public class Controller {
             }
 
             double[] samples = AudioIO.load(audioPath);
-            SilenceDetector sl = new SilenceDetector(samples, relativeSilence, gapLength);
-            sl.detectNotSilence();
-            sl.report();
+            SilenceDetector sl = new SilenceDetector(samples, relativeSilence*0.01, gapLength);
+            sl.detectSilence();
 
             //Calculate lengths
             int lengthOriginal = (int)samples.length/AudioIO.SAMPLE_RATE;
-            int lengthSecondsCut = (int)sl.getSecondsCut();
+            int lengthSecondsCut = (int)CutStatistics.getSecondsCut(sl.getCutSequence());
             int lengthAccelerated = lengthOriginal - lengthSecondsCut;
             lblOriginalLength.setText(secondsToString(lengthOriginal));
             lblAcceleratedLength.setText(secondsToString(lengthAccelerated));
