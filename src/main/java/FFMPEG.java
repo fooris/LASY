@@ -1,6 +1,6 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,13 +11,14 @@ public class FFMPEG {
     private static final String FFMPEG_PATH = "/usr/bin/ffmpeg";
     private static String tmpDir = System.getProperty("java.io.tmpdir");
 
-    public static String convertToAudioAndGetPath(String inputFilePath) {
+    public static String convertToAudioAndGetPath(String inputFilePath) throws IOException {
         String outFilePath = tmpDir + "/audio.wav";
         String ffmpegCommand = FFMPEG_PATH + " -i " + " " + inputFilePath + " -ac 1 -ar 16000 -y " + outFilePath;
         System.out.println(ffmpegCommand);
+        Process p = Runtime.getRuntime().exec(ffmpegCommand);
         try {
-            Runtime.getRuntime().exec(ffmpegCommand);
-        } catch (IOException e) {
+            p.waitFor();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return outFilePath;
@@ -60,42 +61,65 @@ public class FFMPEG {
         String extention = ".mp4";
 
         String ffmpegCmd = FFMPEG_PATH;
-        ffmpegCmd += " -y -i " + inputFilePath;
+        ffmpegCmd += " -y -nostdin -i " + inputFilePath;
 
         BufferedWriter fileWrite = new BufferedWriter(new FileWriter("/tmp/segments.txt"));
         System.out.println();
         for (Interval i: il) {
             float start = (float) i.getTimeStart();
-            float len = (float) (i.getTimeEnd() - start);
+            float end = (float) i.getTimeEnd();
             String tmpOutFilePath = tmpDir + "/" + tmpFilePrefix + String.format("%05d", segnum) + extention;
             segnum ++;
-            ffmpegCmd += " -c copy -ss " + start + " -t " + len + " " + tmpOutFilePath;
+            ffmpegCmd += " -c copy -ss " + start + " -to " + end + " " + tmpOutFilePath;
             fileWrite.write("file "+tmpOutFilePath + "\n");
         }
         fileWrite.close();
-        try {
-            System.out.println(ffmpegCmd);
-            Runtime.getRuntime().exec(ffmpegCmd);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt";
+        System.out.println(ffmpegCmd);
+        Process p = Runtime.getRuntime().exec(ffmpegCmd);
+
+        BufferedReader stdError = new BufferedReader(new
+                InputStreamReader(p.getErrorStream()));
+
         /*
-        for (int i = 0; i<segnum; i++) {
-            ffmpegCmd += "file " + tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention +" \\n";
+        BufferedReader stdInput = new BufferedReader(new
+                InputStreamReader(p.getInputStream()));
+                */
+
+        String s = null;
+        while ((s = stdError.readLine()) != null) {
+            System.out.println(s);
         }
-        */
+
         try {
-            sleep(5000);
+            p.waitFor();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        System.out.println("done");
+        ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt";
         ffmpegCmd += " -c copy " + outputFilePath;
+        System.out.println(ffmpegCmd);
+        p = Runtime.getRuntime().exec(ffmpegCmd);
+
+        stdError = new BufferedReader(new
+                InputStreamReader(p.getErrorStream()));
+
+        /*
+        BufferedReader stdInput = new BufferedReader(new
+                InputStreamReader(p.getInputStream()));
+                */
+
+        s = null;
+        while ((s = stdError.readLine()) != null) {
+            System.out.println(s);
+        }
         try {
-            System.out.println(ffmpegCmd);
-            Runtime.getRuntime().exec(ffmpegCmd);
-        } catch (IOException e) {
+            p.waitFor();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        //for (int i = 0; i<segnum; i++)
+            //Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
     }
 }

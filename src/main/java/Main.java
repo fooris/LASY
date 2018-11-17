@@ -7,7 +7,12 @@ public class Main {
 
     public static void main(String args[]) throws UnsupportedAudioFileException {
 
-        String audio = FFMPEG.convertToAudioAndGetPath(args[0]);
+        String audio = null;
+        try {
+            audio = FFMPEG.convertToAudioAndGetPath(args[0]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         double thres = 0.1;
         if(args.length >1){
             thres = Double.parseDouble(args[1]);
