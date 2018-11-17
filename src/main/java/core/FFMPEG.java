@@ -94,8 +94,14 @@ public class FFMPEG {
 
         System.out.println("done");
         ffmpegCmd = FFMPEG_PATH + " -y -f concat -safe 0 -i /tmp/segments.txt ";
-        ffmpegCmd += (reencodeVideo ? "" : "-c:v copy") + " -c:a copy ";
-        ffmpegCmd += (speedFactor == 0) ? "" : "-filter_complex \"[0:v]setpts=" + 1 / speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a]\" -map \"[v]\" -map \"[a]\" ";
+
+        boolean accelerate= !(speedFactor == 0 || speedFactor==1);
+
+        if (!accelerate)
+            ffmpegCmd += (reencodeVideo ? "" : "-c:v copy") + " -c:a copy ";
+        else
+            ffmpegCmd +=  "-filter_complex [0:v]setpts="+ 1/speedFactor + "*PTS[v];[0:a]atempo=" + speedFactor + "[a] -map [v] -map [a] ";
+
         ffmpegCmd += outputFilePath;
         System.out.println(ffmpegCmd);
         p = Runtime.getRuntime().exec(ffmpegCmd);
