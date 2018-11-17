@@ -11,7 +11,7 @@ public class Main {
         if(args.length >1){
             thres = Double.parseDouble(args[1]);
         }
-        SilenceDetector sl =  new SilenceDetector(audio, thres, (SoundIO.SAMPLE_RATE / SoundIO.REDUCTION_FACTOR) / 2);
+        SilenceDetector sl =  new SilenceDetector(audio, thres, 0.5);
         List<Interval> fupelList = sl.detectSilence();
         sl.report(fupelList);
     }
