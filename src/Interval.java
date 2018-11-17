@@ -1,26 +1,24 @@
 public class Interval {
 
-    public static final int SAMPLE_RATE = 16000;
-
     private int samplePosStart;
     private int samplePosEnd;
 
     public Interval(int samplePosStart, int samplePosEnd) {
 
         //Convert to frame num and save in framePos
-        double posStart = samplePosStart / (double) SAMPLE_RATE;
-        double posEnd = samplePosEnd / (double) SAMPLE_RATE;
+        double posStart = samplePosStart / (double) SoundLoader.SAMPLE_RATE;
+        double posEnd = samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
 
         this.samplePosStart = samplePosStart;
         this.samplePosEnd = samplePosEnd;
     }
 
     public double getTimEnd() {
-        return samplePosStart / (double) SAMPLE_RATE;
+        return samplePosStart / (double) SoundLoader.SAMPLE_RATE;
     }
 
     public double getTimeEnd() {
-        return samplePosEnd / (double) SAMPLE_RATE;
+        return samplePosEnd / (double) SoundLoader.SAMPLE_RATE;
     }
 
     public int getSamplePosStart() {

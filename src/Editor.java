@@ -1,10 +1,12 @@
+import java.util.List;
+
 public abstract class Editor {
 
-    private IntervalHandler intervalHandler;
+    private List<Interval> intervalHandler;
     private String path;
 
 
-    public Editor(String path, IntervalHandler fupleList){
+    public Editor(String path, List<Interval> fupleList){
         this.intervalHandler = fupleList;
         this.path = path;
     }

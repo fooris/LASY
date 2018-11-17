@@ -8,17 +8,20 @@ import java.util.List;
 
 public class SoundLoader {
 
+
+    public static final int SAMPLE_RATE = 16000;
+
     public static void main(String[] args) throws UnsupportedAudioFileException {
         double[] sound = read("./temp/audio.wav");
         System.out.println(sound.length);
-        List<IntervalHandler.Interval> fupelList = SilenceDetector.detectSilence(sound, 0.1, IntervalHandler.SAMPLE_RATE / 2);
+        List<Interval> fupelList = SilenceDetector.detectSilence(sound, 0.1, SAMPLE_RATE / 2);
         int samplesSaved = fupelList.stream()
                 .map(i -> i.getSamplePosEnd() - i.getSamplePosStart())
                 .reduce(Integer::sum)
                 .orElse(0);
 
         System.out.println("Number of cuts: " + fupelList.size());
-        System.out.printf("Seconds saved: %.2f\n", samplesSaved/(float)IntervalHandler.SAMPLE_RATE);
+        System.out.printf("Seconds saved: %.2f\n", samplesSaved/(float)SAMPLE_RATE);
         System.out.printf("Percent saved: %.2f\n", 100.0*samplesSaved/sound.length);
 
     }
