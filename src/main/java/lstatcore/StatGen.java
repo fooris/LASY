@@ -20,7 +20,8 @@ public class StatGen {
     public static Stat getStats(String filePath, Language language, double origLength, double newLength ) throws IOException {
 
         String[] array = filePath.split("/");
-        String name = array[array.length-1];
+        //How to not code:
+        String name = array[array.length-1].replace(".mp4" , ".wav");
 
 
 

@@ -3,16 +3,20 @@ package ui;
 import core.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lstatcore.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
@@ -190,6 +194,98 @@ public class Controller {
 
             //Store into label
             lblInfile.setText(file.getAbsolutePath());
+
+    }
+
+    @FXML
+    private void handleVideoView(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Video to View");
+        File file = fileChooser.showOpenDialog(new Stage());
+        String filePath = file.getPath();
+        if(!Config.OFFLINE){
+            //try {
+                //filePath = FFMPEG.convertToAudioAndGetPath(filePath);
+            //} catch (IOException e) {
+             //   e.printStackTrace();
+            //}
+        }
+
+        Stat stats = null;
+        try {
+            stats = StatGen.getStats( filePath, Language.DE,25,25);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        Skipper skipper = new Skipper(stats);
+
+        String videoName = file.getAbsolutePath() ;
+        String subTitleName = stats.getSubTitleFile();
+
+        Runtime.getRuntime().addShutdownHook(new Thread( () ->{
+            VLCPlayer.stop();
+        }));
+
+        try {
+            VLCPlayer.start(videoName , subTitleName);
+
+            Stage findStage = new Stage();
+
+
+            StackPane stackPane = new StackPane();
+            findStage.setScene(new Scene(stackPane, 200, 27));
+
+
+
+
+            final TextField t = new TextField();
+            t.setPromptText("Search");
+
+
+            Button next = new Button("\u25B6");
+            Button back = new Button("\u25C0");
+            next.setOnMouseClicked( na ->{
+                if(skipper.hasNext(t.getText())){
+                    try {
+                        long sec = Math.max(skipper.next(t.getText()) - 1 , 0);
+                        VLCPlayer.jumpTo(videoName,subTitleName, sec);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            });
+
+            back.setOnMouseClicked( na ->{
+                if(skipper.hasPrevious(t.getText())){
+                    try {
+                        VLCPlayer.jumpTo(videoName,subTitleName, skipper.previous(t.getText()));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            });
+
+
+
+            stackPane.getChildren().addAll(t  ,back, next);
+            StackPane.setAlignment(next, Pos.CENTER_RIGHT);
+            StackPane.setAlignment(back, Pos.CENTER_RIGHT);
+            StackPane.setMargin(next , new Insets(0,0,0,0));
+            StackPane.setMargin(back , new Insets(0,27,0,0));
+            StackPane.setAlignment(t, Pos.CENTER_LEFT);
+
+            findStage.setY(0);
+            findStage.setX(java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth() - 200);
+            findStage.setTitle("Search");
+            findStage.setAlwaysOnTop(true);
+            findStage.show();
+
+
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+
 
     }
 

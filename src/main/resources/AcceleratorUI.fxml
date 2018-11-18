@@ -55,8 +55,9 @@
                      </children></AnchorPane>
               </content>
             </TitledPane>
-            <Button layoutX="14.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleVideoOpen" prefHeight="26.0" prefWidth="297.0" text="Load File" />
-            <Button layoutX="320.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleGenerate" prefHeight="26.0" prefWidth="297.0" text="Generate Accelerated" />
+            <Button layoutX="14.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleVideoOpen" prefHeight="26.0" prefWidth="187.0" text="Load File" />
+            <Button layoutX="427.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleVideoView" prefHeight="26.0" prefWidth="187.0" text="Open in Viewer" />
+            <Button layoutX="221.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleGenerate" prefHeight="26.0" prefWidth="187.0" text="Generate Accelerated" />
             <Pane fx:id="mediaPane" layoutX="405.0" layoutY="14.0" prefHeight="131.0" prefWidth="209.0">
                 <children>
                     <MediaView fx:id="videoView" fitHeight="131.0" fitWidth="209.0" layoutX="1.0" />

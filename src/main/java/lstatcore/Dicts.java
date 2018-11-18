@@ -29,6 +29,10 @@ class Dicts {
 
     }
 
+    public static void main(String  [] a) {
+        System.out.println(isFillWord("nur" , Language.DE));
+    }
+
     static boolean isCurseWord(String word, Language l){
         switch (l){
             case DE:
@@ -59,6 +63,7 @@ class Dicts {
             String line = reader.readLine();
             while (line != null) {
                 line = reader.readLine();
+                res.add(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
