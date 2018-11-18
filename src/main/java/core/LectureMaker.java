@@ -106,6 +106,6 @@ public class LectureMaker {
     }
 
     public double getFinalVideoLength() {
-        return getVideoLength()-CutStatistics.getSecondsCut(finalCutSequence) / speedUpFactor; //FIXME speedupfaktor broken
+        return (getVideoLength()-CutStatistics.getSecondsCut(finalCutSequence)) / speedUpFactor;
     }
 }
