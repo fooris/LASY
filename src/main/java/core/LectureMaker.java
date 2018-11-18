@@ -1,5 +1,7 @@
 package core;
 
+import ui.IUpdateProgress;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +17,9 @@ public class LectureMaker {
     double minCutLength;
     double trimLength;
     boolean invert;
+
+    IUpdateProgress progressInterface;
+
 
     private String audioPath;
     private double[] audioSamples;
@@ -77,6 +82,10 @@ public class LectureMaker {
     public void applyParams() throws Exception {
         List<Interval> silenceSequence = SilenceDetector.detectSilence(audioSamples, threshold, minCutLength, invert);
         finalCutSequence = AudioTools.trim(silenceSequence, 0.1);
+    }
+
+    public void setProgressInterface(IUpdateProgress progressInterface) {
+        this.progressInterface = progressInterface;
     }
 
     public String genPreview() throws IOException {
