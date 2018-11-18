@@ -88,6 +88,10 @@ public class LectureMaker {
         this.progressInterface = progressInterface;
     }
 
+    public IUpdateProgress getProgressInterface() {
+        return progressInterface;
+    }
+
     public String genPreview() throws IOException {
         // purge preview
         List<Interval> shortenedFinalCutSequence = finalCutSequence.stream()
@@ -98,16 +102,20 @@ public class LectureMaker {
         List<Interval> shortenedFinalKeep = AudioTools.inverse(shortenedFinalCutSequence, (int) (30.0f * AudioIO.SAMPLE_RATE));
 
         // make call to finalize video
-        FFMPEG.finalize(videoPath, "/tmp/preview.mp4", shortenedFinalKeep, reencodeVideo, speedUpFactor);
+        FFMPEG.finalize(videoPath, "/tmp/preview.mp4", shortenedFinalKeep, reencodeVideo, speedUpFactor, this);
 
         return "/tmp/preview.mp4";
     }
 
     public void genFinal() throws IOException {
         // invert finalize sequence (the final sequence is what we want to *keep*)
+        if (progressInterface!=null) progressInterface.updateState("Calculating segments");
         List<Interval> shortenedFinalKeep = AudioTools.inverse(finalCutSequence, (int) (30.0f * AudioIO.SAMPLE_RATE));
+        if (progressInterface!=null) progressInterface.updateProgress(0.01);
+
         // make call to finalize video
-        FFMPEG.finalize(videoPath, outputPath, shortenedFinalKeep, reencodeVideo, speedUpFactor);
+        FFMPEG.finalize(videoPath, outputPath, shortenedFinalKeep, reencodeVideo, speedUpFactor, this);
+
     }
 
     public double getVideoLength() {

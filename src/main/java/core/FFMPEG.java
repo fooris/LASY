@@ -1,5 +1,7 @@
 package core;
 
+import ui.IUpdateProgress;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -33,15 +35,19 @@ public class FFMPEG {
      * @param speedFactor    how fast should the video be accelerated? (0 or 1) for no acceleration
      * @throws IOException
      */
-    public static void finalize(String inputFilePath, String outputFilePath, List<Interval> keepSequence, boolean reencodeVideo, float speedFactor) throws IOException {
+    public static void finalize(String inputFilePath, String outputFilePath, List<Interval> keepSequence, boolean reencodeVideo, float speedFactor, LectureMaker context) throws IOException {
         // make sure ffmpeg can finalize videos (problems with small sizes)
         keepSequence = keepSequence.stream()
                 .filter(i -> (i.getTimeEnd() - i.getTimeStart() > 0.1))
                 .collect(Collectors.toList());
 
+        IUpdateProgress progress = context.getProgressInterface();
+        double newLength = context.getFinalVideoLength();
+
         int segnum = 0;
         double timePos = 0;
 
+        /* cut out the desired segments */
         String tmpFilePrefix = "segment";
         String extention = ".mp4";
 
@@ -59,6 +65,9 @@ public class FFMPEG {
             fileWrite.write("file " + tmpOutFilePath + "\n");
         }
         fileWrite.close();
+        if (progress != null) progress.updateProgress(0.3);
+
+        if (progress != null) progress.updateState("Cutting Segments…");
         System.out.println(ffmpegCmd);
         Process p = Runtime.getRuntime().exec(ffmpegCmd);
 
@@ -75,8 +84,9 @@ public class FFMPEG {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        if (progress != null) progress.updateProgress(0.25);
 
-        System.out.println("done");
+        /* merge the segments */
         ffmpegCmd = FFMPEG_PATH + " -nostdin -y -f concat -safe 0 -i /tmp/segments.txt -max_muxing_queue_size 400 ";
 
         boolean accelerate = !(speedFactor == 0 || speedFactor == 1);
@@ -88,6 +98,7 @@ public class FFMPEG {
 
         ffmpegCmd += outputFilePath;
         System.out.println(ffmpegCmd);
+        if (progress != null) progress.updateState("Merging Segments…");
         p = Runtime.getRuntime().exec(ffmpegCmd);
 
         stdError = new BufferedReader(new
@@ -96,14 +107,26 @@ public class FFMPEG {
         s = null;
         while ((s = stdError.readLine()) != null) {
             System.out.println(s);
+            if (progress!=null) {
+                try {
+
+                String line[] = s.split(" ")[6].replace("time=", "").split(".")[0].split(".");
+                double time = Double.parseDouble(line[0]) * 60 * 60 + Double.parseDouble(line[1]) * 60 + Double.parseDouble(line[1]);
+                progress.updateProgress((time / newLength) * 75);
+                } catch (Exception e) {
+
+                }
+            }
         }
         try {
             p.waitFor();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        if (progress != null) progress.updateProgress(0.99);
 
         // cleanup
+        if (progress != null) progress.updateState("Cleaning up…");
         for (int i = 0; i < segnum; i++) {
             Files.delete(Paths.get(tmpDir + "/" + tmpFilePrefix + String.format("%05d", i) + extention));
         }
