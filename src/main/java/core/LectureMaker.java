@@ -62,6 +62,12 @@ public class LectureMaker {
         trimLength = 0.1;
         invert = false;
         try {
+            audioPath = FFMPEG.convertToAudioAndGetPath(videoPath);
+            audioSamples = AudioIO.load(audioPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
             applyParams();
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,9 +75,6 @@ public class LectureMaker {
     }
 
     public void applyParams() throws Exception {
-        audioPath = FFMPEG.convertToAudioAndGetPath(videoPath);
-        audioSamples = AudioIO.load(audioPath);
-
         List<Interval> silenceSequence = SilenceDetector.detectSilence(audioSamples, threshold, minCutLength, invert);
         finalCutSequence = AudioTools.trim(silenceSequence, 0.1);
     }
@@ -99,10 +102,10 @@ public class LectureMaker {
     }
 
     public double getVideoLength() {
-        return audioSamples.length * AudioIO.SAMPLE_RATE;
+        return audioSamples.length / AudioIO.SAMPLE_RATE;
     }
 
     public double getFinalVideoLength() {
-        return CutStatistics.getSecondsCut(finalCutSequence) / speedUpFactor;
+        return getVideoLength()-CutStatistics.getSecondsCut(finalCutSequence) / speedUpFactor; //FIXME speedupfaktor broken
     }
 }

@@ -22,7 +22,7 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <AnchorPane prefHeight="438.0" prefWidth="640.0" GridPane.columnIndex="1">
+      <AnchorPane fx:id="mainAnchorPane" prefHeight="438.0" prefWidth="640.0" GridPane.columnIndex="1">
          <children>
             <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" prefHeight="151.0" prefWidth="381.0" text="Information">
               <content>
@@ -36,6 +36,7 @@
                         <Label fx:id="lblAcceleratedLength" layoutX="192.0" layoutY="82.0" text="0:00" />
                         <Label fx:id="lblInfile" layoutX="192.0" layoutY="98.0" text="./" />
                         <Label fx:id="lblState" layoutX="172.0" layoutY="34.0" text="State" />
+                        <Button layoutX="303.0" layoutY="69.0" mnemonicParsing="false" onAction="#refreshButton" text="Refresh" />
                      </children></AnchorPane>
               </content>
             </TitledPane>

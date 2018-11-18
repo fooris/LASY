@@ -4,16 +4,15 @@ import core.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
@@ -41,10 +40,6 @@ public class Controller {
         }
     };
 
-    //Silence detector
-    SilenceDetector silenceDetector = null;
-    File inFile = null;
-    boolean isPlaying = false;
 
    //FXML stuff
     @FXML
@@ -57,8 +52,6 @@ public class Controller {
     private Label lblAcceleratedLength;
     @FXML
     private Label lblInfile;
-    @FXML
-    private Label lblTest;
     @FXML
     private Slider sldRelativeSilenceThreshold;
     @FXML
@@ -84,12 +77,26 @@ public class Controller {
                 sldAccelerationRate.setDisable(false);
             }
         });
+
+//        sldAccelerationRate.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("Acceleration changed");
+//            updateStats();
+//        });
+//
+//        sldMinGapLength.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("MinGapLength changed");
+//            updateStats();
+//        });
+//
+//        sldRelativeSilenceThreshold.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("Relative silence threshold changed");
+//            updateStats();
+//        });
+
     }
 
-    @FXML
-    private void onAccelerationSliderChanged(ActionEvent event) {
 
-    }
+
 
     @FXML
     private void playerPreview(ActionEvent event) {
@@ -99,7 +106,7 @@ public class Controller {
         try {
             media = new Media("file://" + lm.genPreview());
         } catch (IOException e) {
-            //TODO Pop-Up or sth. similar to inform the user
+            showAltert("Exception", e.getMessage());
             e.printStackTrace();
         }
         updateStats();
@@ -110,83 +117,80 @@ public class Controller {
 
     @FXML
     private void playerPlay(ActionEvent event) {
-        //TODO: improve this!
+        //This assigns a play/stop functionality to the play button
+//        if (mp==null) {return;}
+//        if (isPlaying) {
+//            mp.pause();
+//        } else {
+//            mp.play();
+//        }
+//        isPlaying = !isPlaying;
+
+        //Instead of pausing, just replay the file:
         MediaPlayer mp = videoView.getMediaPlayer();
-        if (mp==null) {return;}
-        if (isPlaying) {
-            mp.pause();
-        } else {
-            mp.play();
+        if(mp==null) {
+            showAltert("Message", "Please select a input file first");
+            return;
         }
-        isPlaying = !isPlaying;
+
+        //Restart video
+        mp.seek(new Duration(0));
+        mp.play();
+
     }
 
     private void copyConfigValues() {
         if (lm == null) {
-            //TODO -> User has not jet chosen a file -> Popup!
+            showAltert("Message", "Please select a input file first");
             return;
         }
         lm.setInvert(chkFunMode.isSelected());
         lm.setMinCutLength(sldMinGapLength.getValue());
-        lm.setThreshold(sldRelativeSilenceThreshold.getValue());
+        lm.setThreshold(sldRelativeSilenceThreshold.getValue()*0.01);
         lm.setSpeedUpFactor((float) sldAccelerationRate.getValue());
         lm.setReencodeVideo(chkReencode.isSelected());
     }
 
-    //TODO: call this more often when sliders are changed
+    //Call on refresh button
+    @FXML
+    private void refreshButton(ActionEvent event) {
+        if (lm!=null) {
+            try {
+                copyConfigValues();
+                lm.applyParams();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(lm.getVideoLength()+" - "+lm.getFinalVideoLength());
+            lblOriginalLength.setText(secondsToString((int) lm.getVideoLength()));
+            lblAcceleratedLength.setText(secondsToString((int) lm.getFinalVideoLength()));
+        }
+    }
+
     private void updateStats() {
-        //TODO format this
-        lblOriginalLength.setText(lm. getVideoLength() + "s");
-        lblAcceleratedLength.setText(lm. getFinalVideoLength() + "s");
+        if (lm!=null) {
+            lblOriginalLength.setText(secondsToString((int) lm.getVideoLength()));
+            lblAcceleratedLength.setText(secondsToString((int) lm.getFinalVideoLength()));
+        }
     }
 
     @FXML
-    private void handleVideoOpen(ActionEvent event) { //TODO error popups
+    private void handleVideoOpen(ActionEvent event) {
 //        try {
             //Open file
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Open File");
             File file = chooser.showOpenDialog(new Stage());
-            if (file==null) {return;}
+            if (file==null) {
+                showAltert("Message", "Please select a input file first");
+                return;}
             lm = new LectureMaker(file.getAbsolutePath());
             updateStats();
 
-            System.out.println(file);
 
             //Store into label
             lblInfile.setText(file.getAbsolutePath());
-//
-//            //Get options
-//            double gapLength = sldMaxGapLength.getValue();
-//            double relativeSilence = sldRelativeSilenceThreshold.getValue();
-//            System.out.println("GapLength: "+gapLength+" relativeSilence: "+relativeSilence*0.01);
-//
-//            //Feed into core
-//            String audioPath = null;
-//            try {
-//                audioPath = FFMPEG.convertToAudioAndGetPath(file.getAbsolutePath());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            double[] samples = AudioIO.load(audioPath);
-//            SilenceDetector sl = new SilenceDetector(samples, relativeSilence*0.01, gapLength);
-//            sl.detectSilence();
-//
-//            //Calculate lengths
-//            int lengthOriginal = (int)samples.length/AudioIO.SAMPLE_RATE;
-//            int lengthSecondsCut = (int)CutStatistics.getSecondsCut(sl.getCutSequence());
-//            int lengthAccelerated = lengthOriginal - lengthSecondsCut;
-//            lblOriginalLength.setText(secondsToString(lengthOriginal));
-//            lblAcceleratedLength.setText(secondsToString(lengthAccelerated));
-//
-//            //If all successful, save sl
-//            silenceDetector = sl;
-//            inFile = file;
-//
-//        } catch (UnsupportedAudioFileException e) {
-//            e.printStackTrace();
-//        }
+
     }
 
     @FXML
@@ -194,47 +198,22 @@ public class Controller {
         try {
             lm.genFinal();
         } catch (IOException e) {
-            //TODO Pop-Up or sth. similar to inform the user
+            showAltert("Exception", e.getMessage());
             e.printStackTrace();
         }
-
-        //TODO: User feedback
-
-        //TODO Was macht hier der Rest?
-        /*
-        System.out.println("Generate");
-        if (silenceDetector==null) {
-            return; //TODO Error message
-        }
-        if (inFile==null) {
-            return; //TODO Error message
-        }
-
-        //Open file:
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Save File");
-        File file = chooser.showSaveDialog(new Stage());
-        if (file==null) {return;}
-
-        System.out.println(file);
-
-        //Feed to core
-        //try {
-            //TODO @Basti: Use IUpdateProgress update, which can be used to update progress
-            boolean reEncode = true;
-            float speedUpValue = 0.0f;
-            //FFMPEG.cut(inFile.getAbsolutePath(), file.getAbsolutePath(), silenceDetector.getCutSequence(), reEncode, speedUpValue);
-        //} catch (IOException e) {
-        //    e.printStackTrace();
-        //}
-        */
-
     }
 
     //Helper
-    private static String secondsToString(float seconds) {
-        LocalTime timeOfDay = LocalTime.ofSecondOfDay((int)seconds);
+    private static String secondsToString(int seconds) {
+        LocalTime timeOfDay = LocalTime.ofSecondOfDay(seconds);
         return timeOfDay.toString();
+    }
+
+    private static void showAltert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
     }
 
 }
